@@ -1,0 +1,21 @@
+--CREATING A BRAND NEW DATABASE WAREHOUSE 
+------------------------------------------
+
+--Create database 'Datawarehouse'
+--creating a new database you have to switch to the master database
+/*Master database is a system database where you can create other databases*/ 
+USE master;
+--Create the database 
+CREATE DATABASE Datawarehouse; 
+--now switch to new database 
+USE Datawarehouse;
+--next we create schemas, schemas are like folders in the database 
+--The 'GO' acts as a separator in the create schema query, it tell the database to create the first one then the next
+
+CREATE SCHEMA bronze;
+GO
+CREATE SCHEMA silver;
+GO
+CREATE SCHEMA gold;
+GO
+--to check the newly created schema look down in security in the database you find SCHEMA 
