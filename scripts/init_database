@@ -1,9 +1,3797 @@
+CREATE TABLE persons (
+id INT NOT NULL,
+person_name VARCHAR (50) NOT NULL,
+birth_date DATE,
+phone VARCHAR (15) NOT NULL,
+CONSTRAINT pk_persons PRIMARY KEY (id)
+) 
+
+
+-- add a new column call email to the persons tables
+
+ALTER TABLE persons
+ADD email VARCHAR (50) NOT NULL;
+
+-- Delete a column from a table
+
+ALTER TABLE persons
+DROP phone;
+
+-- insert data in to rows
+INSERT INTO customers (id,first_name, country, score)
+VALUES (6, 'Anna', 'USA', NULL),
+(7, 'Sam', NULL, 100);
+
+INSERT INTO customers (id,first_name, country, score)
+VALUES (8, 'USA', 'Max', NULL),
+(9, 'Andreas', 'Germany', NULL),
+(10, 'Sahra', NULL, NULL);
+
+-- insert data from customers to persons 
+INSERT INTO persons (id, person_name, birth_date, phone)
+SELECT 
+id,
+first_name,
+NULL,
+'Unknown'
+FROM customers;
+
+-- change the score customer 6 to 0
+UPDATE customers 
+SET score = 0
+WHERE id = 6;
+
+SELECT *
+FROM customers
+WHERE id = 6
+
+-- change the score of the customer 10 to 0 and update the country to UK
+UPDATE customers
+SET score = 0,
+country = 'UK'
+WHERE id = 10;
+
+-- Delete all customers with ID greater than 5
+DELETE FROM customers
+WHERE id > 5;
+
+-- Retrieve all customers from Germany
+
+SELECT *
+FROM customers
+WHERE country = 'Germany'
+
+-- Retrieve all customers who are not from Germany
+
+SELECT *
+FROM customers
+WHERE country != 'Germany'
+
+-- Retrieve all customers with score greater than 500
+
+SELECT *
+FROM customers
+WHERE score > 500
+
+-- Retrieve all customers with a score 500 or more 
+
+SELECT *
+FROM customers
+WHERE score >= 500
+
+
+-- Retrieve all customers with a score less than 500  
+
+SELECT *
+FROM customers
+WHERE score < 500
+
+
+-- Retrieve all customers with a score of 500  or less
+
+SELECT *
+FROM customers
+WHERE score <= 500
+
+-- Retrieve all customers who are USA and have score greater than 500
+
+SELECT *
+FROM customers
+WHERE country = 'USA'
+AND score > 500
+
+-- Retrieve all customers who are either from USA or have score greater than 500
+
+SELECT *
+FROM customers
+WHERE country = 'USA'
+OR score > 500
+
+-- Retrieve all customers with a score not less than 500
+
+SELECT *
+FROM customers 
+WHERE NOT score < 500
+
+-- Retrieve all customers whose score falls in the range between 100 and 500
+
+SELECT *
+FROM customers
+WHERE score BETWEEN 100 AND 500
+
+--or--
+-- Retrieve all customers whose score falls in the range between 100 and 500
+
+SELECT *
+FROM customers
+WHERE score >= 100 AND score <= 500
+
+-- Retrieve all customers from either Germany OR USA
+
+SELECT *
+FROM customers
+WHERE country = 'Germany' OR 'USA';
+
+-- or 
+SELECT * 
+FROM customers
+WHERE country IN ('Germany', 'USA')
+
+-- Retrieve all customers that is not in either Germany OR USA
+
+
+SELECT * 
+FROM customers
+WHERE country NOT IN ('Germany', 'USA')
+
+-- find all customers whose first name starts with 'M'
+
+SELECT *
+FROM customers
+WHERE first_name LIKE 'M%'
+
+-- find all customers whose first name ends with 'N'
+
+SELECT *
+FROM customers
+WHERE first_name LIKE '%N'
+ 
+ -- find all customers whose first name contains 'r'
+
+SELECT *
+FROM customers
+WHERE first_name LIKE '%r%'
+
+-- find all customers whose first name contains 'r' in the 3rd position
+
+SELECT *
+FROM customers
+WHERE first_name LIKE '__r%'
+
+-- Retrieve all customers who are either from USA or have the score greater than 500
+
+SELECT *
+FROM customers 
+WHERE country = 'USA' OR score > 500
+
+-- Retrieve all data from customers and order in two diffrent results
+
+SELECT *
+FROM customers;
+
+SELECT *
+FROM orders;
+
+======== JOIN OPERATORS(combining multiple culumns) ========
+
+-- Get all customers along with their orders, but only for customers who have placed an order
+
+SELECT *
+FROM customers
+INNER JOIN orders
+ON id = customer_id
+
+--inner join--
+/* Get all customers along with their orders
+but only for customers who have places in the order */
+
+SELECT
+c.id,
+c.first_name,
+o.order_id,
+o.sales
+FROM orders AS o
+INNER JOIN customers AS c
+ON c.id = o.customer_id
+
+--or--
+/* Get all customers along with their orders,
+but only for customers who have place an order without ussing INNER JOIN */
+
+SELECT *
+FROM customers AS c
+LEFT JOIN orders AS o
+ON c.id = o.customer_id
+WHERE o.customer_id IS NOT NULL
+
+
+
+/* LEFT JOIN..Get all customers along with their orders
+including those without order */
+
+SELECT 
+c.id,
+c.first_name,
+o.order_id,
+o.sales
+FROM customers AS c
+LEFT JOIN orders AS o
+ON c.id = o.customer_id
+
+/* RIGHT JOIN..Get all customers along with their orders
+including orders without matching customers */
+
+SELECT 
+c.id,
+c.first_name,
+o.order_id,
+o.sales
+FROM customers AS c
+RIGHT JOIN orders AS o
+ON o.customer_id= c.id
+
+/* FULL JOIN..Get all customers all orders,even if there's no match */
+
+SELECT 
+c.id,
+c.first_name,
+o.order_id,
+o.customer_id
+FROM customers AS c
+FULL JOIN orders AS o
+ON c.id = o.customer_id
+
+/* LEFT ANTI JOIN..Get all customers who havent place any order */
+
+SELECT *
+FROM customers AS c
+FULL JOIN orders AS o
+ON c.id = o.customer_id
+WHERE o.customer_id IS NULL
+
+/* RIGHT ANTI JOIN..Get all orders without matching customers */
+
+SELECT *
+FROM orders AS o
+LEFT JOIN customers AS c
+ON customer_id = c.id 
+WHERE c.id IS NULL
+
+/* FULL ANTI JOIN...Find customers without orders and orders without customers */
+
+SELECT *
+FROM orders AS o
+FULL JOIN customers AS c
+ON customer_id = c.id 
+WHERE c.id IS NULL OR customer_id IS NULL
+
+
+/* Task: Using SalesDB, retreive a list of all order, along with related customer,product
+and employee details. for each order display
+order ID, customer's name, sales,price,sales person's name */
+
+
+SELECT 
+o.OrderID,
+o.Sales,
+c.FirstName AS customersFirstName,
+c.LastName AS customersLastName,
+p.Product AS productName,
+p.Price,
+e.FirstName AS employeeFirstName,
+e.LastName AS employeeLastName,
+o.SalesPersonID
+FROM Sales.Orders AS o
+LEFT JOIN Sales.Customers AS c
+ON c.CustomerID = o.CustomerID 
+LEFT JOIN Sales.Products AS p
+ON p.ProductID = o.ProductID
+LEFT JOIN Sales.Employees AS e
+ON o.SalesPersonID = e.EmployeeID 
+
+
+===== SET OPERATORS (combining multiple rows)============
+
+
+/* Get fist name and last name from customers and employees table( same number of colunm rule)*/
+
+SELECT
+FirstName,
+LastName
+FROM Sales.Customers
+UNION
+SELECT
+FirstName,
+LastName
+FROM Sales.Employees
+
+
+/* Get customerID and last name from customers and employees table ( same data type role)*/
+
+SELECT
+customerID,
+LastName
+FROM Sales.Customers
+UNION
+SELECT
+employeeID,
+LastName
+FROM Sales.Employees
+
+
+/* Get customerID and last name from customers and employees table 
+(1st querry controls output and datatypes column nameing so take note of the 
+Alias giving to the first querry) */
+-- RULES OF SET OPERATORS 
+-- 1 ORDER BY can be used only once
+-- 2 Same Number of culumns
+-- 3 Matching Data types
+-- 4 Same Order of column
+-- 5 First Query Controls Alaises
+-- 6 Mapping Correct Column 
+
+
+SELECT
+customerID AS ID,
+LastName
+FROM Sales.Customers
+UNION
+SELECT
+employeeID,
+LastName
+FROM Sales.Employees
+
+
+/*(Ussing UNION) Combine the data from employees and customers in to one table */
+
+SELECT
+ FirstName,
+LastName
+FROM Sales.Customers
+UNION
+SELECT
+ FirstName,
+LastName
+FROM Sales.Employees
+
+
+
+#With UNION ALL 
+-- Returns all rows from both queries, including duplicates
+-- Union all is much faster than Union in as much as you have no duplicates
+-- You can still use Union all to check all duplicate in you table
+
+/* Combine the data from employees and customers in to one table, 
+including duplicates */
+
+SELECT
+ FirstName,
+LastName
+FROM Sales.Customers
+UNION ALL
+SELECT
+ FirstName,
+LastName
+FROM Sales.Employees
+
+
+-- EXCEPT 
+-- It returns all distict rows from first Query that are not found in the SECOND
+-- IT IDS ALSO USED FOR DATA COMPLETENESS CHECK AFTER DATA MIGRATION IS DONE
+
+/* Find the employees who are not customers at the same time */
+
+SELECT
+ FirstName,
+LastName
+FROM Sales.Employees
+EXCEPT
+SELECT
+ FirstName,
+LastName
+FROM Sales.Customers
+
+
+-- INTERSECT
+-- Returns all rows that are common
+-- It also removes duplicates
+
+/* Find the employees, who are also customers */
+
+SELECT
+ FirstName,
+LastName
+FROM Sales.Employees
+INTERSECT
+SELECT
+ FirstName,
+LastName
+FROM Sales.Customers
+
+
+-- COMBINING DATA BETWEEN DIFFRENT TABLES 
+/* Order data are store in separate tables
+Orders and OrdersArchive
+--Combine all order data into one report without duplicate*/
+
+SELECT *
+FROM Sales.Orders
+UNION
+SELECT *
+FROM Sales.OrdersArchive
+
+
+-- BEST PRACTICE FOR COMBING INFORMATIONS
+-- This method is preferable because 
+-- To easily identify any schema change or update 
+-- Always identify the table names in the queries
+/* Order data are store in separate tables
+Orders and OrdersArchive
+--Combine all order data into one report without duplicate*/
+
+SELECT 
+'Orders' AS SourceTable
+      ,[OrderID]
+      ,[ProductID]
+      ,[CustomerID]
+      ,[SalesPersonID]
+      ,[OrderDate]
+      ,[ShipDate]
+      ,[OrderStatus]
+      ,[ShipAddress]
+      ,[BillAddress]
+      ,[Quantity]
+      ,[Sales]
+      ,[CreationTime]
+FROM Sales.Orders
+UNION 
+SELECT 
+'OrdersArchive' AS SourceTable
+      ,[OrderID]
+      ,[ProductID]
+      ,[CustomerID]
+      ,[SalesPersonID]
+      ,[OrderDate]
+      ,[ShipDate]
+      ,[OrderStatus]
+      ,[ShipAddress]
+      ,[BillAddress]
+      ,[Quantity]
+      ,[Sales]
+      ,[CreationTime]
+FROM Sales.OrdersArchive
+ORDER BY OrderID
+
+
+
+-- ROW LEVEL FUNCTIONS 
+/* FUNCTION is a build-in SQL code that acepts an input value, processes it and 
+returns output */
+-- 2 TYPES OF SQL FUNCTIONS 
+-- DATA ENGINEERS /* SINGLE FUNCTIONS (STRINGS,NUMERIC, DATE & TIME AND NULL)*/
+-- DATA ANALYTICS /* MULTI-ROW FUNCTIONS (AGREGATE AND WINDOW) */
+
+
+-- STRING FUNCTIONS IS (DIVIDED IN TO 3 CATEGORIES)
+-- MANIPULATION (CONCAT,UPPER,LOWER,TRIM,REPLACE)
+-- CALCULATION (LEN)
+-- EXTRACTION (LEFT,RIGHT,SUBSTRING)
+
+
+-- (CONCAT or CONCARTINATION) Combines multiple string in to one 
+-- YOU CAN ADD SEPARATOR TO MAKE IT MORE CLEAR TO READ
+/* Show a list of ustomers first name together with their country in one column */
+
+SELECT 
+first_name,
+country,
+CONCAT (first_name, ' - ', country) AS name_country
+FROM customers
+
+-- UPPER (Converts all characters to upercase)
+-- LOWER ( Convert all functions to lowercase)
+
+/* Transform customers first name to lowercase and country to uppercase*/
+
+SELECT 
+first_name,
+country,
+LOWER (first_name) AS lower_name,
+UPPER (Country) AS upper_country
+FROM customers
+
+
+--TRIM FUNCTION (Removes leading and Trailling spaces or invalid spaces)
+
+/* Find customers whose first name contains leading or trailing spaces*/
+
+SELECT 
+first_name
+FROM customers
+WHERE first_name != TRIM(first_name)
+
+-- How to find out the TRIM
+--LEN (count the total character in a values)
+-- LEN-TRIM ( count and subtract the total character in the values)
+
+
+SELECT 
+first_name,
+LEN(first_name) AS len_name,
+LEN(TRIM(first_name)) AS len_trim_name,
+LEN(first_name) - LEN(TRIM(first_name)) AS flag
+FROM customers
+WHERE LEN(first_name) != LEN(TRIM(first_name))
+
+
+-- Replace (Replaces a specific character with a new character)
+
+-- Remove Dashes (-) from a phone number 
+
+SELECT 
+'763-353-0592' AS phone_number,
+REPLACE ('763-353-0592', '-', ' ') AS new_phone
+
+-- EX2
+
+-- Replace file Extension from txt to csv 
+
+SELECT 
+'Report.txt' AS file_name,
+REPLACE ('Report.txt', 'txt', 'csv') AS new_filename
+
+
+--LEN (count the total character in a values )
+/* Calculate the lenth of each customers first name */
+
+SELECT 
+first_name, 
+LEN(first_name) AS len_name
+FROM customers
+
+-- LEFT AND RIGHT EXTRACTION
+-- LEFT EXTRACTION extracts number character from the START of a string value
+-- RIGHT EXTRACTION extracts number character from the END of a string value
+
+/* Retrive the fist and last2 characcter of each customers first name */
+
+SELECT 
+first_name, 
+LEFT(TRIM(first_name), 2) AS left_name,
+RIGHT(first_name, 2) AS right_name
+FROM customers
+
+-- SUBSTRING EXTRACTION
+-- Its extract part of a string from a specific position
+
+/* Retrive a list of customers first name after removing the first character */
+
+SELECT 
+first_name, 
+SUBSTRING(TRIM(first_name), 2, 3) AS sub_name
+FROM customers
+
+-- If retriving a long character 
+
+SELECT 
+first_name, 
+SUBSTRING(TRIM(first_name), 2, LEN(first_name)) AS sub_name
+FROM customers
+
+--NUMBER FUNCTIONS (NUMERIC)
+--NUMBER FUNCTIONS either  round up or round down the last 3 digits after the decimal point
+-- There are 3 types of number or numeric fuctions 
+--ROUND 2,1 and 0
+
+/* Round the last 3 digits after the decimal point */
+
+SELECT 
+3.516 AS Number, 
+ROUND(3.516, 2) AS Round_2,
+ROUND(3.516, 1) AS Round_1,
+ROUND(3.516, 0) AS Round_0
+
+-- ABS or ABSOLUT NUMBER FUNCTIONS 
+-- It converst any NEGATIVE NUMBER to Positive 
+/* Convert the negative numbers to positive numbers */
+
+SELECT 
+-10 AS N_Number, 
+ABS(-10) AS Nmunber
+
+
+-- DATE And TIME function
+--Date comprises of 3 component (Year,Month and Day)
+--Time it is a specifict point in a day and comprises of 3 component (Hour,Munites and Seconds)
+-- All this components makes u date and time 
+-- It is called either timestamp or DateTime
+-- There are 3 diffrent sources to querry Date and Time in our databases Date Column from a table
+
+--#1 Dates that are stored in our DATABASE
+
+SELECT
+OrderID,
+CreationTime
+FROM Sales.Orders
+
+--#2 Hardcoded Constant String value that are used in our querries 
+
+SELECT
+OrderID,
+CreationTime,
+'1996-20-11' As Hard_coded
+FROM Sales.Orders
+
+--#3 GETDATE Function 
+--It get the exact date and time, at the moment when a querry is executed 
+
+SELECT
+OrderID,
+CreationTime,
+'1996-20-11' As Hard_coded,
+GETDATE() AS Today
+FROM Sales.Orders
+
+--DATE AND TIME MANIPULATION 
+-- We have 4 different categories on date and time manipulation which are 
+--Part Extraction,Format and Casting, Calculation and Validation
+
+-- PART EXTRACTION (DAY,MONTH AND YEAR)
+/* Extract the DAY,MONTH AND YEAR From the table */
+
+SELECT
+OrderID,
+CreationTime,
+DAY(CreationTime) AS DAY,
+MONTH(CreationTime) AS MONTH,
+YEAR(CreationTime) AS YEAR
+FROM Sales.Orders
+
+-- DATEPART 
+-- It goes and returns specific part of a DATE AND TIME 
+/* Extract the DATEPART of DAY,MONTH AND YEAR From the table */
+
+SELECT
+OrderID,
+CreationTime,
+DATEPART(month, CreationTime) AS Month,
+DATEPART(day, CreationTime) AS Day,
+DATEPART(year, CreationTime) AS Year,
+DATEPART(hour, CreationTime) AS Hour,
+DATEPART(quarter, CreationTime) AS Quarter,
+DATEPART(weekday, CreationTime) AS Weekday,
+DATEPART(week, CreationTime) AS Week
+FROM Sales.Orders
+
+
+-- DATENAME
+--It returs the name of the dateparts
+/* Extract the DATENAME of DAY,MONTH AND YEAR From the table */
+
+SELECT
+OrderID,
+CreationTime,
+DATENAME(weekday, CreationTime) AS Weekday,
+DATENAME(month, CreationTime) AS Month_Name,
+DATENAME(day, CreationTime) AS Day_Name
+FROM Sales.Orders
+
+-- DATETRUNC
+-- Its truncate/delete/removes/takes away the DATE in to a specific parts 
+-- When resting it reset Time to (00) while for DAYS and MONTH it reset to (01) because we have no (00) Day
+-- this function can be used to analys sales for the year,month and weeks 
+/* TRUNCATE DAY,MONTH AND YEAR From the table */
+
+SELECT
+OrderID,
+CreationTime,
+DATETRUNC(year, CreationTime) AS Trunc_Year,
+DATETRUNC(month, CreationTime) AS Trunc_month,
+DATETRUNC(day, CreationTime) AS Trunc_day,
+DATETRUNC(hour, CreationTime) AS Trunc_hour,
+DATETRUNC(minute, CreationTime) AS Trunc_minute,
+DATETRUNC(second, CreationTime) AS Trunc_second
+FROM Sales.Orders
+
+
+-- EOMONTH
+-- Its returns the last day of a month in a table 
+/* Find out the END OF THE  DAY,MONTH AND YEAR From the table */
+
+SELECT
+OrderID,
+CreationTime,
+EOMONTH(CreationTime) AS End_month
+FROM Sales.Orders
+
+/* Find out the FIRST OF THE  DAY,MONTH AND YEAR From the table */
+
+SELECT
+OrderID,
+CreationTime,
+EOMONTH(CreationTime) AS End_month,
+CAST(DATETRUNC(month, CreationTime) AS DATE) First_month
+FROM Sales.Orders
+
+
+/* How many order were placed in each MONTH  */
+
+SELECT
+DATENAME(month, OrderDate) AS Month_Name,
+COUNT(*)NrofOrder
+FROM Sales.Orders 
+GROUP BY DATENAME(month, OrderDate)
+
+
+/* Show all orders placed during the month of Febuary  */
+
+SELECT *
+FROM Sales.Orders
+WHERE MONTH(OrderDate) = 2
+
+-- FORMATING AND CASTING 
+-- Date and time format is represented as (YYYY-MM-dd and HH:mm:ss)
+-- there are verious ways in formating a date depending on company request
+-- MM/dd/yy = 08/20/25
+-- MMM yyy = Aug 2025
+-- Convert
+-- 6 = 20 Aug 25
+-- 20250820
+
+SELECT 
+OrderDate,
+CreationTime,
+FORMAT(CreationTime, 'D', 'fr-FR') AS France_standard,
+FORMAT(CreationTime, 'd') AS d,
+FORMAT(CreationTime, 'dd') AS dd, 
+FORMAT(CreationTime, 'ddd') AS ddd, 
+FORMAT(CreationTime, 'dddd') AS dddd,
+FORMAT(CreationTime, 'dd/MMM/yy') AS dMy
+FROM Sales.Orders
+
+SELECT 
+CreationTime,
+FORMAT(CreationTime, 'hh:mm:ss tt') AS Time,
+FORMAT(CreationTime, 'ddd-MMM') AS Date,
+FORMAT(CreationTime, 'Q1') AS Quarter
+FROM Sales.Orders
+
+
+/* Show creation time ussing the verious Format 
+day wed jan Q1 2025 12:34:56 pm*/
+
+
+SELECT 
+OrderID,
+CreationTime,
+'Day ' + FORMAT(CreationTime, 'ddd MMM') +
+' Q'+ DATENAME(quarter, CreationTime) + ' ' +
+FORMAT(CreationTime, 'yyyy hh:mm:ss tt') AS CustomeFormat
+FROM Sales.Orders
+
+
+-- NUMBER format
+-- N =1,234,567.89
+-- C = $1,234,567.89
+-- P = 123,456,789.00%
+-- CASTING...Changes the data type from string to interger 
+
+
+/* Agregate all the order for the month*/
+
+
+SELECT 
+FORMAT(OrderDate, 'MMM yy') OrderDate,
+COUNT(*)
+FROM Sales.Orders
+GROUP BY FORMAT(OrderDate, 'MMM yy')
+
+
+/* Convert the values */
+
+SELECT 
+CreationTime,
+CONVERT(DATE, CreationTime) AS [Datetime to Date CONVERT],
+CONVERT(VARCHAR, CreationTime, 32) AS [USA Std. Style:32 to Date CONVERT],
+CONVERT(VARCHAR, CreationTime, 34) AS [EURO Std. Style:34 to Date CONVERT]
+FROM Sales.Orders
+
+/* Cast the values */
+
+SELECT 
+CAST('123' AS INT) AS [String to Int],
+CAST(123 AS VARCHAR) AS [Int to String],
+CAST('2025-08-20' AS DATE) AS [String to Date],
+CAST('2025-08-20' AS DATETIME2) AS [String to DateTIME],
+CreationTime,
+CAST(CreationTime AS DATE) AS [DateTime to Date],
+CAST(CreationTime AS TIME) AS [DateTime to time]
+FROM Sales.Orders
+
+
+-- DATEADD( IS BY ADDING OR SUBTRACTING THE VALUES IN A DATE )
+
+/* Add and Subtract the date values in the orderdate */
+
+SELECT 
+OrderID,
+OrderDate,
+DATEADD(month, 3, OrderDate) AS ThreemonthsLater,
+DATEADD(year, 2, OrderDate) AS Twoyears,
+DATEADD(year, -4, OrderDate) AS Fouryears,
+DATEADD(day, -4, OrderDate) AS Fourdays
+FROM Sales.Orders
+
+
+-- DATEDIFF (Finds the diffrence between two dates)
+/* Find the diffrences between the orderdate and shipdate */
+
+SELECT 
+OrderDate,
+ShipDate,
+DATEDIFF(D, OrderDate, ShipDate) AS Diff
+FROM Sales.Orders
+
+/* Find the age of employees */
+
+SELECT 
+EmployeeID,
+BirthDate,
+DATEDIFF(year, BirthDate, GETDATE())
+FROM Sales.Employees
+
+
+/* Find the shipping duration in days each month */
+
+SELECT 
+OrderID,
+OrderDate,
+ShipDate,
+DATEDIFF(day, OrderDate, ShipDate) AS DayDuration
+FROM Sales.Orders
+
+/* Find the shipping duration in days each month */
+
+SELECT 
+MONTH(OrderDate) AS OrderDate,
+AVG(DATEDIFF(day, OrderDate, ShipDate)) AvgShip
+FROM Sales.Orders
+GROUP BY MONTH(OrderDate)
+
+
+
+/* Time Gap Analysis
+Find the number of days between each order and the previous order*/
+
+SELECT 
+OrderID,
+OrderDate CurrentOrderDate,
+LAG(OrderDate) OVER (ORDER BY OrderDate) PreviousOrderDate,
+DATEDIFF(day, LAG(OrderDate) OVER (ORDER BY OrderDate), OrderDate) NrOfDays
+FROM Sales.Orders
+
+
+-- ISDATE (This function checks and returns DATE in a column or row)
+/*find the incorrect date from the table*/
+
+
+SELECT 
+    OrderDate,
+    ISDATE(OrderDate) AS IsValidDate,
+    CASE 
+        WHEN ISDATE(OrderDate) = 1 THEN CAST(OrderDate AS DATE)
+        ELSE NULL
+    END AS NewOrderDate
+FROM (
+    SELECT '2025-08-20' AS OrderDate UNION
+    SELECT '2025-08-21' UNION
+    SELECT '2025-08-22' UNION
+    SELECT '2025-08'
+) AS t;
+
+
+-- NULL 
+-- Handle all NULLs in a key before any join operation
+-- We handle all NULLs before any aggregations 
+-- NULL Means nothing, unknown 
+-- NULL is not smpty string 
+-- NULL is not zero
+-- NULL is not empty String
+-- NULL is not blank space 
+-- (NULL FUNCTION)
+-- ISNULL replaces a NULL with a specific value 
+
+/* Fillter the table and replace all NULL rows to UNKNOWN
+Then Replace all UNKOWN values in from the Billing adress with Shipping address*/
+
+
+SELECT 
+OrderID,
+ShipAddress,
+BillAddress,
+ISNULL(ShipAddress, 'Unknown') Unknown,
+ISNULL(BillAddress, ShipAddress) BillingA
+FROM Sales.Orders
+
+-- (COALESCE)
+-- Returns non-null values from a list 
+/* Return all non-null value from the list */
+
+
+SELECT 
+OrderID,
+ShipAddress,
+BillAddress,
+COALESCE(ShipAddress, BillAddress, 'N/A') Unknown
+FROM Sales.Orders
+
+
+/* find the average score of the customer */
+
+
+SELECT 
+CustomerID,
+Score,
+COALESCE(Score, '0') F_Score,
+AVG(Score) OVER () AVG_Score,
+AVG(COALESCE(Score, '0')) OVER() AVG_Score2
+FROM Sales.Customers
+
+
+-- We handle all NULLs before any aggregations 
+/* Display the full name of customers in a single field
+by merging thier first and last names
+and add 10 bonus points to each customers score*/
+
+
+SELECT 
+CustomerID,
+FirstName,
+LastName,
+Score,
+FirstName+' '+ COALESCE(LastName,'') AS FullName,
+Score,
+COALESCE(Score, 0) + 10 AS ScorewithBonus
+FROM Sales.Customers
+
+
+-- Handle all NULLs in a key before any join operation
+
+SELECT
+a.year, a.type, a.orders, b.sales,
+FROM Table1 a
+JOIN Table2 B
+ON a.year = b.year
+AND ISNULL (a.type, '') = ISNULL (b.type, '')
+
+
+-- Handle NULLs before sorting out data
+/*Sort the customer from lowers to highest score,
+with nulls appearing last*/
+
+
+SELECT
+CustomerID,
+Score
+FROM Sales.Customers
+ORDER BY CASE WHEN Score IS NULL THEN 1 ELSE 0 END, Score
+
+
+-- NULLIF-- Compresses two values
+-- it returs a NULL if they are equal
+-- And returns First Value, if they are not equal
+
+NULLIF(value1, value2)
+NULLIF(Original_Price, Discount_Price)
+
+-- Usiing a NULLIF TO PREVENT DIVIDING BY A ZERO(0)
+
+/*Find the sales price for each order by dividing sales by quantity*/
+
+
+SELECT
+OrderID,
+Sales,
+Quantity,
+Sales / NULLIF(Quantity,0) AS Price
+FROM Sales.Orders
+
+
+-- IS NULL.. Returns TRUE if the value is NULL otherwise it returns FALSE
+
+
+
+SELECT 
+    Name,
+    Email,
+    CASE 
+        WHEN Email IS NULL THEN 'TRUE'
+        ELSE 'Email Available'
+    END AS Status
+FROM Employees;
+
+-- IS NOT NULL...Returns True if the value IS NOT NULL otherwise it returns FALSE
+
+SELECT 
+    Name,
+    Email,
+    CASE 
+        WHEN Email IS NOT NULL THEN 'TRUE'
+        ELSE 'Email Available'
+    END AS Status
+FROM Employees;
+
+-- FILTERING INFORMATION
+
+SELECT *
+FROM Employees
+WHERE PhoneNumber IS NULL;
+
+SELECT *
+FROM Employees
+WHERE Email IS NOT NULL;
+
+
+-- LEFT ANTI JOIN | RIGHT ANTI JOIN
+-- WE HAVE 4 TYPES OF Joins 
+-- Inner Joins (filter Only matching Rows)
+-- LEFT JOIN (Filters Rows from left and all matching rows from rightn)
+-- RIGHT JOIN (Filters all rows from right and only the matching rows from the left)
+-- FULL JOIN (all the rows from the left and right)
+-- LEFT ANTI JOIN( Filters all the rows from the left without any matching rows from RIGHT)
+-- -- RIGHT ANTI JOIN( Filters all the rows from the left without any matching rows from LEFT)
+
+/*Show a list of customers who have not placed any order*/
+
+
+SELECT
+c.*,
+o.OrderID
+FROM Sales.Customers c
+LEFT JOIN Sales.Orders o
+ON c.CustomerID = O.CustomerID
+WHERE o.CustomerID IS NULL
+
+-- diffrences between NULL,EMPTY STRING AND BLANK space
+
+
+WITH Orders AS (
+SELECT 1 id,'A' Category UNION
+SELECT 2, NULL UNION
+SELECT 3, '' UNION
+SELECT 4, ' '
+)
+SELECT
+*,
+TRIM (Category) CategorLen
+FROM Orders
+
+
+-- Always TRIM your data before analysing to freeup the empty spaces
+
+WITH Orders AS (
+SELECT 1 id,'A' Category UNION
+SELECT 2, NULL UNION
+SELECT 3, '' UNION
+SELECT 4, ' '
+)
+SELECT
+*,
+DATALENGTH (Category) CategorLen,
+DATALENGTH(TRIM(Category)) Policy1
+FROM Orders
+
+-- Always use NULLS and avoid empty string and blank spaces
+-- /* Convert a value to a NULL*/
+-- this policy is the bst to use because it can be migrayed to diffrent platforms
+-- it doesnt consume space
+-- this policy is good for ETL
+
+WITH Orders AS (
+SELECT 1 id,'A' Category UNION
+SELECT 2, NULL UNION
+SELECT 3, '' UNION
+SELECT 4, ' '
+)
+SELECT
+*,
+NULLIF(TRIM(Category), '') Policy2
+FROM Orders
+
+-- Use the default vault 'unknown' and avoid ussing nulls,empty string and blank spaces
+-- this policy is good for reports
+
+WITH Orders AS (
+SELECT 1 id,'A' Category UNION
+SELECT 2, NULL UNION
+SELECT 3, '' UNION
+SELECT 4, ' '
+)
+SELECT
+*,
+TRIM(Category) Policy1,
+NULLIF(TRIM(Category), '') Policy2,
+COALESCE(NULLIF(TRIM(Category), ''), 'unknown') Policy3
+FROM Orders
+
+-- SUMMARY OF NULL FUNCTION 
+-- To change NULL TO A VALUE you can use (COALESCE|ISNULL)
+-- To change a value to NULL (NULLIF)
+-- To check if the id a NULL you can use ( IS NULL|IS NOT NULL)
+-- (USE CASE)
+-- Always handle all NULLS before Data agregation
+-- Always handle all NULLS before any mathematical operations
+-- handle all NULLS before any join operation
+-- handle all NULLS before sorting your data
+-- always find unmatched data 
+
+-- CASE STATEMENT
+-- Its evaluates a list of conditions and returns a value when the first condition is met
+-- case statement is used to create new columns based on existing data
+/* categorizing data */
+-- Grouping the data into diffrent categories based on certain conditions
+-- it helps us agregates data base on their categories
+-- Before we do any data agregation we need to creta a bew table called 
+"category" since it is not found in our database 
+
+/* Create report showing total sales for each of the following categories:
+high (sales over 50), medium (sales 21-50), and low(sales 20 or less)
+sort the dategories from highest sales to lowest*/
+SELECT
+Category,
+SUM(Sales) AS Totalsales
+FROM(
+SELECT
+OrderID,
+Sales,
+CASE
+WHEN Sales > 50 THEN 'High'
+WHEN Sales > 20 THEN 'Medium'
+ELSE 'Low' END
+Category
+FROM Sales.Orders
+)t
+GROUP BY Category
+ORDER BY Totalsales DESC
+
+-- RULES WHEN USSING CASE STATEMENT 
+-- The data type of the result must be matching 
+CASE
+WHEN Sales > 50 THEN 'High'
+WHEN Sales > 20 THEN 'Medium'
+ELSE 'Low' END
+-- case statements can be used anywhere
+
+-- MAPPING values
+-- Transforms values for one form to another
+
+/* Retrive employee details with gender displayed as full text
+*/
+
+SELECT
+EmployeeID,
+FirstName,
+LastName,
+Gender,
+CASE
+WHEN Gender = 'F' THEN 'Female'
+WHEN Gender = 'M' THEN 'Male'
+ELSE 'NotAvailable'
+END
+NewGender
+FROM Sales.Employees
+
+/* Retrive customers details with abbreviated country code
+*/
+
+SELECT
+FirstName,
+LastName,
+Country,
+CASE
+WHEN Country = 'Germany' THEN 'DE'
+WHEN Country = 'USA' THEN 'US'
+ELSE 'NotAvailable'
+END
+CountryABB
+FROM Sales.Customers
+
+
+-- In a case where you have alot of values to repeat like (country)
+-- you need to state the column we want to evaluate after the CASE statement and proceed with the syntax
+
+/* Retrive customers details with abbreviated country code
+*/
+
+SELECT
+FirstName,
+LastName,
+Country,
+CASE Country
+WHEN 'Germany' THEN 'DE'
+WHEN 'USA' THEN 'US'
+ELSE 'NotAvailable'
+END
+CountryABB
+FROM Sales.Customers
+
+-- DISTINCT
+-- To see all posible values in the database 
+SELECT DISTINCT Country
+FROM Sales.Customers
+
+
+-- ussing CASE statement to HANDLING NULLS
+-- use CASE to relace NULL with specific value
+
+/* Find the average score of customers and treat Nulls as 0
+additionally provide details such as customerid and lastname
+*/
+
+SELECT
+CustomerID,
+LastName,
+Score,
+CASE
+WHEN Score IS NULL THEN 0
+ELSE Score
+END Scoreclean,
+AVG(CASE
+WHEN Score IS NULL THEN 0
+ELSE Score
+END) OVER () Avgcustomerclean
+FROM Sales.Customers
+
+
+-- CONDITIONAL AGREGATIONS
+-- Apply aggregate functions only on subsets of data that fulfull certain conditions
+
+/* Count how many times each customer has made an order with sales greater that 30
+*/
+
+SELECT
+	CustomerID,
+	SUM(CASE
+	WHEN Sales > 30 THEN 1
+	ELSE 0
+	END) TotalOrderHighSales,
+	COUNT(*) TotalOrders
+FROM Sales.Orders
+GROUP BY CustomerID
+
+-- AGGREGATE FUNCTIONS 
+--They accept multiple row as input and a single row for output
+/* Find the total number of orders
+*/
+
+SELECT
+COUNT(*) AS total_nr_orders
+FROM Orders
+
+/* Find the total of all orders
+*/
+
+SELECT
+SUM(sales) AS totalsale
+FROM Orders
+
+/* Find the Average of all orders
+*/
+
+SELECT
+SUM(sales) AS totalsale,
+AVG(sales) Avgsales
+FROM Orders
+
+/* Find the highest sales of all orders
+*/
+
+SELECT
+SUM(sales) AS totalsale,
+AVG(sales) Avgsales,
+MAX(sales) AS Hightest_sales
+FROM Orders
+
+/* Find the Lowest sales of all orders
+*/
+
+SELECT
+SUM(sales) AS totalsale,
+AVG(sales) Avgsales,
+MAX(sales) AS Hightest_sales,
+MIN(sales) AS Minimumsales
+FROM Orders
+
+-- USSING GROUP BY FUNCTION will break it down to other small
+
+/* Find the Lowest sales of all orders and GROUP BY customers id
+*/
+
+SELECT
+customer_id,
+SUM(sales) AS totalsale,
+AVG(sales) Avgsales,
+MAX(sales) AS Hightest_sales,
+MIN(sales) AS Minimumsales
+FROM Orders
+GROUP BY customer_id
+
+
+-- WINDOW FUNCTION|ANALYTICAL functions
+-- Window function allow you to perform calculations (aggregation)
+-- on a specific subset of data,without losing the level of details of rows
+
+/* Find the total sales for each additionally provide tdetails 
+such as ordersid orderdate
+*/
+
+--PARTITION BY CLAUSE
+
+/* Find the total sales for each additionally provide details 
+such as ordersid orderdate
+*/
+
+SELECT
+OrderID,
+OrderDate,
+ProductID,
+SUM(sales) OVER(PARTITION BY ProductID) TotalSalesbyproduct
+FROM Sales.Orders
+
+
+/* Find the total sales across all orders 
+additionally provide details such order id,order date
+*/
+
+SELECT
+OrderID,
+OrderDate,
+Sales,
+SUM(Sales) OVER() TotalSalesbysales
+FROM Sales.Orders
+
+/* Find the total sales across all orders
+Find the total sales for each product additionally 
+Find the total sales for each combination of product and order status
+provide details such order id,order date
+*/
+
+SELECT
+ProductID,
+OrderID,
+OrderDate,
+Sales,
+OrderStatus,
+SUM(Sales) OVER() totalsales,
+SUM(Sales) OVER(PARTITION BY ProductID, OrderStatus) PRODUCTandorderstatus,
+SUM(Sales) OVER(PARTITION BY ProductID) TotalSalesbyPRODUCT
+FROM Sales.Orders
+
+--ORDER BY CLAUSE 
+
+--RANK each order on their sales from highest to lowest
+--Additionally provide details such order id, order date
+
+
+SELECT
+OrderID,
+OrderDate,
+Sales,
+RANK() OVER(ORDER BY Sales DESC) SaleRank
+FROM Sales.Orders
+
+
+-- WINDOW FRAME
+-- RULES FOR WINDOW FRAME-- Frame clause can only be used together with order by clause
+-- Lower Value must be before the higher value
+
+SELECT
+OrderID,
+OrderDate,
+OrderStatus,
+Sales,
+SUM(Sales) OVER(PARTITION BY OrderStatus ORDER BY OrderDate
+ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING) TotalSales
+FROM Sales.Orders
+
+---- Rank Customers on thier total sales
+
+
+SELECT
+CustomerID,
+SUM(Sales) TotalSales,
+RANK() OVER(ORDER BY SUM(Sales) DESC) Rankcustomers
+FROM Sales.Orders
+GROUP BY CustomerID
+
+-- AGGREGATING WITH WINDOW FUNCTION
+-- COUNT(Returns the number of rows within a window)
+/*This doesnt care about the NULL values in the row since its counting*/
+
+SELECT
+ProductID
+COUNT(*) OVER(PARTITION BY ProductID)
+FROM Sales.Orders
+
+/*This care about the NULL values in the row since its counting the sales*/
+
+SELECT
+ProductID,
+Sales,
+COUNT(Sales) OVER(PARTITION BY ProductID)
+FROM Sales.Orders
+
+--OVERALL Analysis
+--this function check the overall performance of company
+
+SELECT
+COUNT(*)
+FROM Sales.Orders
+
+--Find the total number of orders
+--Find the total number of orders for each customers
+--Additionally provide details such order id, order date
+
+
+
+SELECT
+OrderID,
+OrderDate,
+CustomerID,
+COUNT(*) OVER ()  Totalorder,
+COUNT(*) OVER (PARTITION BY CustomerID)  Orderbycustomers
+FROM Sales.Orders
+
+--Find the total number of customers
+-- Find the total number of score for the customers
+-- Additionally provide all customers details
+
+
+SELECT
+*,
+COUNT(*) OVER() Totalcustomer,
+COUNT(Score) OVER() Totalscore
+FROM Sales.Customers
+
+-- To check data quality ussing the 'COUNT' in windows Function
+
+/* Check whether the table 'orders' contains any duplicate row*/
+
+SELECT 
+OrderID,
+COUNT(*) OVER (PARTITION BY OrderID) AS Checkpk
+FROM Sales.Orders;
+
+/* Retrieve any orderID with duplicates*/
+
+SELECT
+*
+FROM(
+	SELECT 
+	OrderID,
+	COUNT(*) OVER (PARTITION BY OrderID) AS Checkpk
+	FROM Sales.OrdersArchive
+)t WHERE Checkpk > 1
+
+-- AGGREGATE WINDOW FUNCTION (SUM)
+-- It is the sum of all values within a WINDOW
+-- It ignors the NULLS in the calculations 
+
+-- Find the total sales across all orders
+--And the total sales for each product
+--Additionally provide details such order ID, order date
+
+
+SELECT 
+	OrderID,
+	OrderDate,
+	Sales,
+	ProductID,
+	SUM(Sales) OVER () Totalsales,
+	SUM(Sales) OVER (PARTITION BY ProductID) Salebyproducts
+FROM Sales.Orders
+
+-- COMPARISION Analysis( PART-TO-WHOLE Analysis)
+-- It compare the current value and aggregated value of the window Function
+-- It helps us to understand the total sales and the sales of a particular month
+--This show the contribution of each data point to the overall dataset
+
+-- Find the percentage contribution of each product sales to the total sales
+
+
+SELECT 
+	OrderID,
+	Sales,
+	ProductID,
+	SUM(Sales) OVER () Totalsales,
+	ROUND (CAST (Sales AS FLOAT) / SUM(Sales) OVER () * 100, 2) Percentageoftotal
+FROM Sales.Orders
+
+
+-- AGGREGATE WINDOW FUNCTION AVERAGE (AVG)MEANS DIVIDED BY
+-- This function returns the average of values within a WINDOW
+-- ALWAYS HANDLE THE NULLS BEFORE AGGREGATING 
+
+-- Find the Average Sales across all orders
+-- And find the average sales for each product
+--Additionally provide details such order id, order date
+
+
+SELECT 
+	OrderID,
+	OrderDate,
+	Sales,
+	ProductID,
+	AVG(Sales) OVER () Averagesales,
+	AVG(Sales) OVER (PARTITION BY ProductID) AverageProduct	
+FROM Sales.Orders
+
+-- Find the average score of customers
+-- Additionally provide details such customerID and LastName
+
+
+SELECT 
+	CustomerID,
+	LastName,
+	Score,
+	AVG(Score) OVER () Avescore,
+	AVG(COALESCE(Score, '0')) OVER () AverageOnCustomer	
+FROM Sales.Customers
+
+
+-- Find all orders where sales are higher than the average sales across all orders
+-- This function helps to evaluate whether a value is above or below the average
+
+SELECT
+*
+FROM
+(
+SELECT 
+OrderID,
+ProductID,
+Sales,
+AVG(Sales) OVER() Totalsales
+FROM Sales.Orders
+)t
+WHERE Sales > Totalsales
+
+
+-- Find all orders where sales are higher than the average sales across all orders
+
+SELECT
+*
+FROM
+(
+SELECT 
+OrderID,
+ProductID,
+Sales,
+AVG(Sales) OVER() Totalsales
+FROM Sales.Orders
+)t
+WHERE Sales > Totalsales
+
+
+-- AGGREGATE WINDOW FUNCTION (MIN/MAX)
+-- THIS FUNCTIONS RETUNS THE MINIMUM AND MAXIMUM VALUE WITHIN A Window
+-- ALWAYS HANDLE THE NULLS BEFORE AGGREGATING 
+
+
+-- Find the highest and lowest sales for all orders
+-- find the highest and lowest sales for each product 
+-- Additionally details such order id, order date
+
+
+SELECT
+	OrderID,
+	ProductID,
+	Sales,
+	OrderDate,
+	MAX(Sales) OVER () Highestsales,
+	MIN(Sales) OVER () Lowestsales,
+	MAX(Sales) OVER (PARTITION BY ProductID) Highestsalesbyproduct, 
+	MIN(Sales) OVER (PARTITION BY ProductID) Lowestproduct
+FROM Sales.Orders
+
+
+-- show the employees who have the highest salaries
+
+SELECT
+*
+FROM
+(
+SELECT
+*,
+MAX(Salary) OVER () Salarybyemployee
+FROM Sales.Employees
+)t
+WHERE Salary = Salarybyemployee
+
+
+-- DEVIATION
+-- Find the deviation of each sales from the minimum and maximum sales amount
+
+SELECT
+	OrderID,
+	ProductID,
+	Sales,
+	OrderDate,
+	MAX(Sales) OVER () Highestsales,
+	MIN(Sales) OVER () Lowestsales,
+	Sales - MIN(Sales) OVER () Deviationfrommin
+FROM Sales.Orders
+
+
+
+-- RUNING AND ROLLING total
+-- THIS FUNCTION TRACKS CURRENT SALES WITH A TARGET Sales
+-- It provides insights into historical patterns
+-- this function aggregate sequence of members, and the aggregation is updated each time a new member is added
+--RUNING total
+-- THIS AGGREGATE ALL VALUES FROM THE BEGINING UP TO THE CURRENT POINT WITHOUT DROPPING OFF OLDER DATA
+--ROLLING total--THIS AGGREGATE ALL VALUES WITHIN A FIXED TIME WINDOW (E.G 30 DAYS)
+-- As new data is added, the oldest data point will be dropped
+
+
+
+-- Calculate moving average of sales for each product over time
+-- Calculate moving average of sales for each product over time, 
+-- including only the next order
+
+SELECT
+	OrderID,
+	ProductID,
+	Sales,
+	OrderDate,
+	AVG(Sales) OVER (PARTITION BY ProductID) Avebyproduct,
+	AVG(Sales) OVER (PARTITION BY ProductID ORDER BY OrderDate) MovingAve,
+    AVG(Sales) OVER (PARTITION BY ProductID ORDER BY OrderDate ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING ) RollingAve
+
+FROM Sales.Orders
+
+
+--WINDOWS FUNCTIONS 
+-- ROW NUMBER WINDOWS FUNCTIONS 
+-- THIS SYNTAX GOES AND ASSIGN A UNIQUE NUMBER FOR EACH row
+-- IT DOESNT HANDLE TIES(2 ROWS DOESNT SHARING THESAME RANKING NUMBERS)
+
+-- Rank the order based on thier sales from highest to lowest 
+
+SELECT 
+	OrderID,
+	ProductID,
+	Sales,
+	ROW_NUMBER() OVER(ORDER BY Sales DESC) SalesRank_Row
+FROM Sales.Orders
+
+-- USE case
+-- TOP-N Analysis( IT ANALYSIS THE TOP PERFORMERS TO DO TARGETED MARKETING)
+-- WHICH PRODUSTS SELLS MORE 
+--FIND THE TOP HIGHEST SALES FOR EACH PRODUCT 
+SELECT *
+FROM
+(
+SELECT 
+	OrderID,
+	ProductID,
+	Sales,
+	ROW_NUMBER () OVER(PARTITION BY ProductID ORDER BY Sales DESC) Rankbyproduct
+FROM Sales.Orders
+)t
+WHERE Rankbyproduct = 1
+
+-- BOTTON-N ANALYSIS(Help analysis the underperformance to manage risk and to do optimization)
+
+--FIND THE 2 lowest customers based on thier total sales
+
+
+SELECT *
+FROM
+(
+SELECT 
+	CustomerID,
+	SUM(Sales) TotalSales,
+	ROW_NUMBER () OVER(ORDER BY SUM(Sales)) Rankcustomers
+FROM Sales.Orders
+GROUP BY 
+CustomerID
+)t
+WHERE Rankcustomers <= 2
+
+-- GENERATE/ASSIGN UNIQUE IDs(Help assign unique identifier for each row to help paginating)
+--Assign unique IDs to the rows of the 'Order Archive' table
+--PAGINATING(The process of breaking down a larger data into smaller, and more manageable chunks)
+
+
+SELECT 
+ROW_NUMBER() OVER (ORDER BY OrderID, OrderDate) UniqueID,
+*
+FROM Sales.OrdersArchive
+
+-- IDENTIFY DUPLICATEDS
+-- Identify and remove duplicate rows to improve data quality
+--Identify duplicates rows in the table  'Order Archive
+-- and return a clean result without any duplicates
+
+--Identify duplicates rows in the table  'Order Archive
+-- and return a clean result without any duplicates
+SELECT *
+FROM
+(
+SELECT
+ROW_NUMBER() OVER (PARTITION BY OrderID ORDER BY CreationTime DESC) rn,
+*
+FROM Sales.OrdersArchive
+)t WHERE rn = 1
+
+
+-- RANK WINDOW FUNCTION 
+-- This function Assign a rank to each row
+-- it handles ties(E.G IF 2 ROW have thesame values the will share thesame RANK)
+-- If 2 rows share thesame Values in a RANK it skips the next RANKING value
+
+-- Rank the order based on thier sales from highest to lowest 
+
+SELECT 
+	OrderID,
+	ProductID,
+	Sales,
+	RANK() OVER(ORDER BY Sales DESC) Rankrow
+FROM Sales.Orders
+
+-- DENSE_RANK 
+-- this function Assign a RANK to each row
+-- It handles TIES
+-- It doesnt leave gaps in ranking 
+
+-- Rank the order based on thier sales from highest to lowest 
+
+SELECT 
+	OrderID,
+	ProductID,
+	Sales,
+	DENSE_RANK () OVER(ORDER BY Sales DESC) DenseRankrow
+FROM Sales.Orders
+
+-- NTILE WINDOW FUNCTION 
+-- This function Divides the rows into a specified number of approximately equal group(Buckets)
+-- With NTILES if the rows are NOT Equall the larger comes first 
+
+--Create one Bucket from the Data Order Archive 
+SELECT 
+OrderID,
+Sales,
+NTILE(6) OVER (ORDER BY Sales DESC) SixBucket,
+NTILE(5) OVER (ORDER BY Sales DESC) FiveBucket,
+NTILE(4) OVER (ORDER BY Sales DESC) FourBucket,
+NTILE(3) OVER (ORDER BY Sales DESC) ThreeBucket,
+NTILE(2) OVER (ORDER BY Sales DESC) TwoBucket,
+NTILE(1) OVER (ORDER BY Sales DESC) OneBucket
+FROM Sales.Orders
+
+-- NTILE USECASE
+-- DATA SEGMENTATION
+--This function Divides data into distinct subsets based on certain criteria
+
+--Segment all orders into 3 categories, High, Medium and Low Sales 
+SELECT
+*,
+CASE WHEN Bucket = 1 THEN 'High'
+WHEN Bucket = 2 THEN 'Medium'
+WHEN Bucket = 3 THEN 'Low'
+END Salessegmentation
+FROM
+(
+SELECT
+OrderID,
+Sales,
+NTILE(3) OVER (ORDER BY Sales DESC) Bucket
+FROM Sales.Orders
+)t
+
+-- EQUALIZING LOAD
+-- This function helps to plit tables into smaller chunks for ETL
+--In order to export the data, divid the orders into 2 groups
+
+SELECT
+NTILE(4) OVER ( ORDER BY OrderID) Buckets,
+*
+FROM Sales.Orders
+
+-- PERCENTAGE BASE RANKING 
+-- This calculates the percentage of every row
+
+--CUME_DIST
+-- It calculates the distribution of data within a window|row 
+-- If SQL finds a tie or duplicates it ignors the next value
+--Find the product that fall within the highest 40% of the price 
+
+SELECT
+*,
+CONCAT(DistRank * 100, '%') DistRankperc
+FROM (
+SELECT
+Product,
+Price,
+CUME_DIST() OVER (ORDER BY Price DESC) DistRank
+FROM Sales.Products
+)t
+WHERE DistRank <=0.4
+
+-- PERCENT_RANK
+--This function generate the relative position of each row in a window 
+-- If SQL finds a tie or duplicates it goes and share thesame percentage RANK
+
+--Find the product that fall within the highest 40% of the price 
+
+SELECT
+*,
+CONCAT(DistRank * 100, '%') DistRankperc
+FROM (
+SELECT
+Product,
+Price,
+PERCENT_RANK() OVER (ORDER BY Price DESC) DistRank
+FROM Sales.Products
+)t
+WHERE DistRank <=0.4
+
+
+-- VALUE WINDOW Function
+--this function can be used to access Values from other row in other to do comparision 
+--LEAD Month AHEAD (Allows you to access a value from the next row within a window
+--LAG MONTH AGO(Allows you to access a value from the previous row within a window 
+
+-- TIME SERIES Analysis
+-- The process of analyzing the data to understand patterns,trends, and behaviors of a business over time it is divided in to 2
+--Year-Over-Year (YoY)
+--IT analyze the overall growth or decline of the business performance over time
+-- Month-Over-Month (MoM)
+--Its Analyze short-term trends and discover patterns in seasonality
+
+--Analyze the month-over-month performance by finding the percentage change
+-- in sales between the current and previous months
+
+
+
+SELECT
+*,
+CurrentMonthSales - PreviousMonthSales AS MoM_Change,
+ROUND(CAST((CurrentMonthSales - PreviousMonthSales) AS FLOAT)/PreviousMonthSales *100, 1) AS MoM_Perc
+FROM(
+SELECT
+MONTH(OrderDate) OrderMonth,
+SUM(Sales) CurrentMonthSales,
+LAG(SUM(Sales)) OVER (ORDER BY MONTH(OrderDate)) PreviousMonthSales
+FROM Sales.Orders
+GROUP BY
+MONTH(OrderDate)
+)t
+
+-- CUSTOMER RETENTION analysis
+-- It measure customer's behavior and loyalty to help business build strong relationship with customers
+
+--In order to analyze customers loyalty, 
+-- Rank customers base on the average days betewwn thier orders
+
+
+SELECT
+    CustomerID,
+    AvgDays,
+    RANK() OVER (ORDER BY COALESCE(AvgDays, 99999)) AS RankAvg
+FROM (
+    SELECT
+        CustomerID,
+        AVG(DayUntilNextOrder) AS AvgDays
+    FROM (
+        SELECT
+            OrderID,
+            CustomerID,
+            OrderDate AS CurrentOrder,
+            LEAD(OrderDate) OVER (
+                PARTITION BY CustomerID
+                ORDER BY OrderDate
+            ) AS NextOrder,
+            DATEDIFF(
+                day,
+                OrderDate,
+                LEAD(OrderDate) OVER (
+                    PARTITION BY CustomerID
+                    ORDER BY OrderDate
+                )
+            ) AS DayUntilNextOrder
+        FROM Sales.Orders
+    ) t
+    GROUP BY CustomerID
+) x;
+
+
+--FIRST_VALUE/LAST_VALUE
+-- first value will alow you access first value from row within a  window 
+--last value will alow you access last value from row within a  window 
+
+--Find the Lowest and highest for each product
+--Find the Lowest and highest for each product
+/*CHECK MULTIPLE EXAMPLES IN THE SYNTAX*/
+
+SELECT
+OrderID,
+ProductID,
+Sales,
+FIRST_VALUE(Sales) OVER (PARTITION BY ProductID ORDER BY Sales) LowestSales,
+LAST_VALUE(Sales) OVER (PARTITION BY ProductID ORDER BY Sales
+ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) HighestSales,
+FIRST_VALUE(Sales) OVER (PARTITION BY ProductID ORDER BY Sales DESC) HighestSales2,
+MIN(Sales) OVER (PARTITION BY ProductID) LowestSales2,
+MAX(Sales) OVER (PARTITION BY ProductID) HighestSales3
+FROM Sales.Orders 
+
+--Find the Lowest and highest for each product
+--Find the diffrence in sales between the current and lowest sales
+
+
+SELECT
+OrderID,
+ProductID,
+Sales,
+FIRST_VALUE(Sales) OVER (PARTITION BY ProductID ORDER BY Sales) LowestSales,
+LAST_VALUE(Sales) OVER (PARTITION BY ProductID ORDER BY Sales
+ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) HighestSales,
+Sales - FIRST_VALUE(Sales) OVER (PARTITION BY ProductID ORDER BY Sales) AS SalesDiffrence
+FROM Sales.Orders 
+
+
+---ADVANCE QUERING TECHNIQUES
+---DATA WAREHOUSE
+--It is a special database that collects and intergrates data from diffrent sources to enable analytics and support decision making
+
+-- CHALLENGES IN DATAWAREHOUSE
+--DATA REDUNDANCY( Query repeatition in the database)
+--PERFORMANCE ISSES( Queries taking long time durring I/O)
+--DATA COMPLEXCITY ( Broad nature of the data and multiple relationship amoungs the tables being prepared and optimized by one application makes it difficult to understand the physical data mudule behid the database )
+-- DATA SECURITY ISSUES
+
+-- SOLUTIONS 
+--Use SUBQUERRIES
+-- CTE( Common Table Expression)
+-- VIEWS
+--Temporary tables
+-- CTAS (Create Tables As Select)
+
+-- DATABASE ARCHITECTURE 
+-- SERVER STORAGE UNITS
+--KEY WORDS
+-- USER DATA STORAGE (IT THE MAIN CONTENT OF THE DATABASE 
+/*THIS IS WHERE THE ACTUAL DATA THAT USERS CARE ABOUT IS STORED THEY ARE STORED IN TABLES IN THE DATABASE 
+
+-- SYSTEM CATALOG
+/* IT is the database internal storage for its own information 
+it is a blueprint that keeps track of everything about the database itself not the user data
+/* It holds meta data about the database THAT IS DATA ABOUT DATA It decribes the data structure in the database 
+/*METADATA can be found in the INFORMANTION SCHEMA a system defined schema with built-in views that provides info about the database like tables and colunms
+
+--syntax
+
+SELECT 
+*
+FROM INFORMATION_SCHEMA.
+
+
+
+--TEMPORARY STORAGE
+/*Temp space is used by the database for short-term task, like sorting operations and processing querries, once these task are done the storage is cleard 
+/* It can be found in the SYSTEM databases named TEMPDB
+
+--SUBQUERIES
+/*IT IS A QUERY INSIDE ANOTHER QUERY
+-- CATEGORIES OF SUB-querries
+-- NON-CORELATED SUB-QUERY (meaning the sub query is independent from the main query
+-- CORELATED (Meaning the sub-qury depends on the main query
+
+RESULT TYPES OF SUB-queries
+-- SCALAR SUBQUERY ( it is a subquery that goes and returns only a single value*/
+
+
+SELECT 
+AVG(Sales) Scalarquery
+FROM Sales.Orders
+
+
+--ROW subquery ( It is a subquery that goes and returns multiple row and a single column*?
+
+SELECT 
+CustomerID
+FROM Sales.Orders
+
+-- TABLE SUBQUERY (This subquery returns multiple rows and multiple columns in a table*/
+
+SELECT 
+*
+FROM Sales.Orders
+
+-- Ussing subqueries in diffrent location in a Query
+--FROM clause ( It is used as a temporary table for the main query
+
+--Mainquery
+SELECT
+*
+FROM
+--Subquery
+	(
+	SELECT 
+	ProductID,
+	Price,
+	AVG(Price) OVER () Avgprice
+	FROM Sales.Products)t
+WHERE Price > Avgprice
+
+
+/* Rank the customers based on thier total amount of sales */
+--main query
+SELECT
+*,
+RANK() OVER (ORDER BY TotalSales DESC) CustomerRank
+FROM
+--sub query
+(
+SELECT
+CustomerID,
+SUM(Sales) TotalSales
+FROM Sales.Orders GROUP BY CustomerID)t
+
+-- SELECT CLAUSE 
+-- we use the select query to agregate data side by side with the main query data, allowing for direct comparison
+
+/* Show the product id,product name, price and the total number of orders */
+
+-- main query
+SELECT
+ProductID,
+Product,
+Price,
+--Sub query
+(SELECT COUNT(*) FROM Sales.Orders) AS Totalorders
+FROM Sales.Products
+
+
+-- JOIN clause
+-- join subquery is used to prepare the data(filter or agregation) before joining it with other tables
+
+/* Show all customers details and find the total order of each customer */
+--main query
+SELECT
+c.*,
+o.TotalOrder
+FROM Sales.Customers c
+LEFT JOIN (
+--sub query
+SELECT
+CustomerID,
+COUNT(*) TotalOrder
+FROM Sales.Orders GROUP BY CustomerID) o
+ON c.CustomerID =o.CustomerID
+
+
+-- WHERE clause
+-- This sub query is used for complex filtering logic and making query more flexible and dynamic
+-- it is divided in to 2 COMPARISON OPERATORS and LOGICAL OPERATORS
+--COMPARISON OPERATORS(This sub query helps us to compare two values in order to help us filter data base on certain conditions
+
+/* Find the total product that have a price higher than the average price of all product */
+
+
+--main query
+SELECT
+ProductID,
+Price,
+(SELECT AVG(Price) FROM Sales.Products) AvgPrice
+FROM Sales.Products
+WHERE Price > (SELECT AVG(Price) FROM Sales.Products)
+
+--IN OPERATOR
+--This sub query check if a value matches any value in the list of multiple values
+
+/* Show the details of orders made by customers in Germany */
+
+--main query
+SELECT
+*
+FROM Sales.Orders
+		WHERE CustomerID IN
+		(SELECT 
+		CustomerID
+		FROM Sales.Customers
+		WHERE Country = 'Germany')
+		
+		
+-- ANY|ALL OPERATOR
+-- it is used to check if a value matches ANY value within a list
+-- it is used to check if a value is true for ATLEAST one of the values in a list
+
+/* find female employees whose salaries are greater
+than the salaries of any male employees*/
+
+--main query
+SELECT 
+EmployeeID,
+FirstName,
+Salary
+FROM Sales.Employees
+WHERE Gender = 'F'
+AND Salary > ANY (SELECT Salary FROM Sales.Employees WHERE Gender = 'M')
+
+/* find female employees whose salaries are greater
+than the salaries of ALL male employees*/
+
+--main query
+SELECT 
+EmployeeID,
+FirstName,
+Salary
+FROM Sales.Employees
+WHERE Gender = 'M'
+AND Salary > ALL (SELECT Salary FROM Sales.Employees WHERE Gender = 'F')
+
+
+--DEPENDENCIES
+--Non-Correlated|Correlated SUBQUERIES
+-- NON-CORELATED SUB-QUERY (meaning the sub query is independent from the main query
+-- CORELATED (Meaning the sub-qury depends on the main query
+/* Show all customers details and find the total orders of each customer*/
+
+--main query
+SELECT 
+*,
+(SELECT COUNT(*) FROM Sales.Orders o WHERE o.CustomerID = c.CustomerID) TotalSales
+FROM Sales.Customers c
+
+
+-- EXISTS corelated Subquery
+-- this subquery goes and check the existense of a row in a diffrent Table
+
+-- Show the details of orders made by customers in Germany
+
+--main query
+SELECT
+*
+FROM Sales.Orders o
+WHERE EXISTS (SELECT * 
+		FROM Sales.Customers c
+		WHERE Country = 'Germany'
+		AND o.CustomerID = c.CustomerID)
+		
+		
+-- -- Show the details of orders made by customers NOT FROM Germany
+
+--main query
+SELECT
+*
+FROM Sales.Orders o
+WHERE NOT EXISTS (SELECT * 
+		FROM Sales.Customers c
+		WHERE Country = 'Germany'
+		AND o.CustomerID = c.CustomerID)
+
+
+-- The CTE (Common Table Expression)
+-- it is a Temporary, named result set(value table) that can be used multiple times within your query to simplify and organize complex Query
+-- CTE is like a virtual table it is not stored in the database 
+--Diffrence between SUBQUERY and CTE is that the subquery is writen at the bottom of the main query WHILE the CTE is write above the main Table
+-- A SUBQUERY can be used only once while a CTE can be used multiple times 
+
+-- WHY WE USE CTE
+-- CTE improves readability
+-- CTE breaks bigger tables into smaler mudules 
+-- it reduces reusability since the logic is writen just once and can be reuse multiple times 
+-- CTE utilizes the high speed limmit of the cashe in the memory
+
+--TYPES OF CTE
+STANDALONE CTE
+-- IT is a CTE that defined and used independently
+-- it runs independently as a self contain and doesnt rely on other CTEs or Query
+-- A name inside a clause is a CTE
+--You cannot use the ORDER BY CLAUSE in a CTE
+
+--STEP 1: Find the total sales per customer
+
+--CTE Query
+WITH CTE_Total_Sales AS
+(
+SELECT 
+CustomerID,
+SUM(Sales) AS Totalsales
+FROM Sales.Orders
+GROUP BY CustomerID
+)
+--Main query
+SELECT
+c.CustomerID,
+c.FirstName,
+c.LastName,
+cts.Totalsales
+FROM Sales.Customers c
+LEFT JOIN CTE_Total_Sales cts
+ON cts.CustomerID = c.CustomerID
+
+
+--MULTIPLE STANDALONE CTE
+-- With multiple stand alone CTE only the first CTE starts with 'WITH' the rest follows with a commer ',' after the parantesis
+
+--STEP 1: Find the total sales per customer
+
+--CTE Query
+WITH CTE_Total_Sales AS
+(
+SELECT 
+		CustomerID,
+		SUM(Sales) AS Totalsales
+		FROM Sales.Orders
+GROUP BY CustomerID
+)
+--STEP 2: Find the last order for each customer
+,CTE_Last_order AS
+(
+SELECT
+		CustomerID,
+		MAX(OrderDate) AS Last_order
+		FROM Sales.Orders
+GROUP BY CustomerID
+)
+--Main query
+SELECT
+		c.CustomerID,
+		c.FirstName,
+		c.LastName,
+		cts.Totalsales,
+		ctl.Last_order
+FROM Sales.Customers c
+LEFT JOIN CTE_Total_Sales cts
+ON cts.CustomerID = c.CustomerID
+LEFT JOIN CTE_Last_order ctl
+ON ctl.CustomerID = c.CustomerID
+
+--NESTED CTE 
+-- It is a CTE inside another CTE
+-- It can use the result of another CTE FOR IT TO RUN INDEPENDENTLY
+-- IT CANNOT BE EXECUTED INDEPENDENTLY
+-- It reduces data redundancy(repeatition) and data complexity
+
+--STEP 1: Find the total sales per customer
+
+--CTE Query
+WITH CTE_Total_Sales AS
+(
+SELECT 
+		CustomerID,
+		SUM(Sales) AS Totalsales
+		FROM Sales.Orders
+GROUP BY CustomerID
+)
+--STEP 2: Find the last order for each customer
+,CTE_Last_order AS
+(
+SELECT
+		CustomerID,
+		MAX(OrderDate) AS Last_order
+		FROM Sales.Orders
+GROUP BY CustomerID
+)
+-- Step3: Rank customers base on total sales per customers (Nested CTE)
+, CTE_Customer_Rank AS
+(
+SELECT
+CustomerID,
+TotalSales,
+RANK() OVER (ORDER BY TotalSales DESC) AS CustomerRank
+FROM CTE_Total_Sales
+)
+--STEP4:Segment customers based on thier total sales
+,CTE_Customer_Segments AS
+(
+SELECT
+CustomerID,
+TotalSales,
+CASE WHEN TotalSales > 100 THEN 'HIGH'
+     WHEN TotalSales > 80 THEN 'MEDIUM'
+	 ELSE 'Low'
+END CustomerSegment
+FROM CTE_Total_Sales
+)
+--Main query
+SELECT
+		c.CustomerID,
+		c.FirstName,
+		c.LastName,
+		cts.Totalsales,
+		ctl.Last_order,
+		ccr.CustomerRank,
+		ccs.CustomerSegment
+FROM Sales.Customers c
+LEFT JOIN CTE_Total_Sales cts
+ON cts.CustomerID = c.CustomerID
+LEFT JOIN CTE_Last_order ctl
+ON ctl.CustomerID = c.CustomerID
+LEFT JOIN CTE_Customer_Rank ccr
+ON ccr.CustomerID = c.CustomerID
+LEFT JOIN CTE_Customer_Segments ccs
+ON ccs.CustomerID = c.CustomerID
+
+
+--Non - RECURSIVE CTE
+-- It is a CTE that is executed only once without any repeatition 
+--RECURSIVE CTE
+-- It is a self referencing query that repeatedly processes data until a specific condition is met 
+-- with recursive CTE looping ocures in the CTE not in the main Query
+-- writing the syntax of the recursive cte we have to define the breaking condition.
+-- Anchor query in a CTE is the query that interacts with the database to provide us with a result 
+-- the second is a recursive query that is excuted many times till it reaches it breaking condition 
+-- Generate a sequence of numbers from 1 to 20
+
+WITH Series AS (
+--Anchor Query
+SELECT 
+1 AS MyNumber 
+UNION ALL
+--Recursive Query
+SELECT
+MyNumber + 1
+FROM Series
+WHERE MyNumber < 20
+)
+--Main Query
+SELECT *
+FROM Series
+
+-- To control the recursion in we can use OPTION 
+
+-- Generate a sequence of numbers from 1 to 20
+
+WITH Series AS (
+--Anchor Query
+SELECT 
+1 AS MyNumber 
+UNION ALL
+--Recursive Query
+SELECT
+MyNumber + 1
+FROM Series
+WHERE MyNumber < 1000
+)
+--Main Query
+SELECT *
+FROM Series
+OPTION (MAXRECURSION 5000)
+
+
+--Show the employee hierachy by displaying each employee level within the organization
+
+WITH CTE_Emp_Hierarchy AS (
+--Anchor Query
+SELECT 
+		EmployeeID,
+		FirstName,
+		ManagerID,
+		1 AS Levels
+FROM Sales.Employees
+WHERE ManagerID IS NULL
+UNION ALL
+--Recursive Query
+SELECT
+		e.EmployeeID,
+		e.FirstName,
+		e.ManagerID,
+Levels + 1
+FROM Sales.Employees AS e
+INNER JOIN CTE_Emp_Hierarchy ceh
+ON e.ManagerID = ceh.EmployeeID
+)
+--Main Query
+SELECT *
+FROM CTE_Emp_Hierarchy
+
+--SUMMERY OF CTE
+--IT is a temporary, named result set that can be used multiple times within the Query
+-- ADVANTAGES
+--READABLITY..it breaks down complex queries into smaller pieces
+--MODULARITY..Pieces are easy to manage, develop and self contained
+--REUSABILITY(REDUNTANCY)..Reduces redundancy in Query
+--RECURSIVE..Iteration of looping in SQL
+--Result of CTE is like table but cant be used multiple queries 
+
+--SUMMARY 2 types of CTE
+--CLASICAL CTE| STANDALONE...Results of the CTE could be used from the main query 
+--NESTED CTE...Result of the CTE can be used in another CTE which leads to having NESTED CTE
+--RECURSIVE...We can also used the result of the CTE within itself
+-- Do not use more than 5 CTE in a single Query
+
+
+--VIEWS
+--=====
+--view is like an object in a database
+--DATABASE..It is an organized collection of data that are store in a structural way 
+--Inside a database we have SCHEMAS which is 
+--SCHEMAS..It is a logical layer that groups related objects together in our database 
+--EXAMPLE..in our database we can have databases partition in to a (SALES DATABASE) and (HR DATABASE) and inside these databases we have related objects that are grouped in to multiple SCHEMAS (ORDER SCHEMA), CUSTOMERS SCHEMA) and inside each SCHEMA we have tables
+--TABLE... This is a place where data is stored in to organized rows and columns and still under the chemas we have VIEWS 
+--VIEW..Is a virtual table that shows data without storing it physically
+--DDL COMMANDS HELPS US TO manage the database structure
+--we have CREATE,ALTER AND DROP command 
+
+--3 LEVEL ARCHITECCTURE LEVELS OF database
+-- The database architecture is divided into 3 levels which is the PHYSICAL,LOGICAL AND THE VIEW 
+--PHYSICAL LEVEL..It is the actual physical level of the datavbase where all data is stored and only the DBA have access to this section of the database 
+--the physical level consist of DATAFILES,PARTITIONS, LOGS,CATALOGS, BLOCKS AND CACHES to store our data 
+
+-- LOGICAL LEVEL...This is the level where the data structure is being defined 
+-- in this level tables are being created and their relationships between these tables are being defined, views, indexes, procedures and functions are being created in order to optimize the performance of the tables, 
+-- here the developers and engineers created the data structure without thinking of where the data is being stored 
+
+--VIEW level
+--It is that area where end users and application can access and see what is in the dataabse 
+--Here we can create a view for Business analyst, another for data virtualization and reporting (POWER BI) then one for END USERS 
+
+
+--WHAT ARE VIEWS
+--A view is a virtual table based on the result set of a query, without storing  the data in database
+--Views are persisted(stored queries)SQL queries in the database
+--views are like a structure of a table without any data attached to it and in any view has a query attached to it in order to get data so in other word a table is a physical table while a view is a virtual or logical table
+
+
+--COMPARISION BETWEEN TABLES AND VIEWS
+--Tables stores the actual physical data of the database while views are virtual tables and do not store any data inside the database 
+--Tables are hard to maintain and changes like adding columns and removing columns takes time and extra work while the views are easier  to maintain since they are simply queries 
+-- Tables are more faster than views since you are quering directly on the table but view are slower since the queries need to go through sorting operation to fetch for actual data in the table here the userr have to write a query that will connect to the query in the view before going to fetch the data in the table 
+-- A table is READ/WRITE while views are READ ONLY 
+
+--CENTRAL QUERY logic
+--Store central, complex query logic in the database for access by queries, reducing project complexity
+
+-- VIEWS AND CTE 
+--CTE reduces redundancy in a single query while view reduces redundancy in multiple queries 
+-- CTE improves the reusability of a single query while View improves the reusability of multi-queries 
+-- CTE needs no maintainance it is auto cleanup after use while views needs maintance over time 
+
+--SYNTAX OF A VIEW 
+--CREATE VIEW VIEW-NAME AS
+
+CREATE VIEW V_Monthly_Summary AS
+(
+SELECT
+DATETRUNC(month, OrderDate) OrderMonth,
+SUM(Sales) Total,
+COUNT(OrderID) TotalOrders,
+SUM(Quantity) TotalQuantities
+FROM Sales.Orders
+GROUP BY DATETRUNC(month, OrderDate)
+)
+
+
+--ASSIGNING A VIEW TO THE CORRENT SCHEMA BY ADDING the first name of the schema when creating the view
+
+CREATE VIEW Sales.V_Monthly_Summary AS
+(
+SELECT
+DATETRUNC(month, OrderDate) OrderMonth,
+SUM(Sales) Total,
+COUNT(OrderID) TotalOrders,
+SUM(Quantity) TotalQuantities
+FROM Sales.Orders
+GROUP BY DATETRUNC(month, OrderDate)
+)
+
+
+--DROP VIEW VIEW-NAME AS
+DROP VIEW V_Monthly_Summary
+
+-- To update the content of a view you have to add the drop command on the old query, Edit the query and recreat it again 
+
+--DROP VIEW Sales.V_Monthly_Summary 
+
+--CREATE VIEW Sales.V_Monthly_Summary AS
+(
+SELECT
+DATETRUNC(month, OrderDate) OrderMonth,
+SUM(Sales) Total,
+COUNT(OrderID) TotalOrders
+FROM Sales.Orders
+GROUP BY DATETRUNC(month, OrderDate)
+)
+
+-- Provide views that combines details from orders,products,customers and employees
+CREATE VIEW Sales.V_Order_Details AS
+(
+SELECT 
+o.OrderID,
+o.OrderDate,
+p.Product,
+p.Category,
+COALESCE(c.FirstName,'') + ' ' + COALESCE(c.LastNAME,'') CustomerName,
+c.Country CustomerCountry,
+COALESCE(e.FirstName,'') + ' ' + COALESCE(e.LastNAME,'') SalesName,
+e.Department,
+o.Sales,
+o.Quantity
+FROM Sales.Orders o
+LEFT JOIN Sales.Products p
+ON p.ProductID = o.ProductID
+LEFT JOIN Sales.Customers c
+ON c.CustomerID = o.CustomerID
+LEFT JOIN Sales.Employees e
+ON e.EmployeeID = o.SalesPersonID
+)
+
+
+--Views are used for ROW and COLUMN level security
+
+-- Provide a view for EU Sales Team
+-- that combines details from all tables 
+--and excludes data related to the USA
+
+CREATE VIEW Sales.V_Order_Details_EU AS(
+SELECT 
+o.OrderID,
+o.OrderDate,
+p.Product,
+p.Category,
+COALESCE(c.FirstName,'') + ' ' + COALESCE(c.LastNAME,'') CustomerName,
+c.Country CustomerCountry,
+COALESCE(e.FirstName,'') + ' ' + COALESCE(e.LastNAME,'') SalesName,
+e.Department,
+o.Sales,
+o.Quantity
+FROM Sales.Orders o
+LEFT JOIN Sales.Products p
+ON p.ProductID = o.ProductID
+LEFT JOIN Sales.Customers c
+ON c.CustomerID = o.CustomerID
+LEFT JOIN Sales.Employees e
+ON e.EmployeeID = o.SalesPersonID
+WHERE c.Country != 'USA'
+)
+
+
+--FLEXIBILITY AND DYNAMIC 
+-- Views offers multiple languages in a broad database by creating a view base on thier user languages 
+
+-- VIEWS can be used as Data Marts in Data Warehouse System because they provide a flexible and efficient way to present data like callecting data from multiple data source sytems and databases and combining in it to build up a data warehouse 
+--A DATA Mart is a focused portion of a data warehouse that contains data relevant to a specific department, subject area, or business use (for example: sales, finance, HR).
+-- it is more advisable to use VIEWS to create a Data mart because it it more easier and quicker you dont need to create an ETL 
+
+--tables
+--Permanent tables are tables that are created and stored in the database as long as you want then to stay
+--Temporary tables are created and deleted once a deceasion ends 
+--CTAS Creates a new table based on the result of an SQL Query
+
+--DIFFRENCES BETWEEN A CTAS AND A View
+-- A CTAS STORES ITS QUERY RESULT OF IT QUERY IN A SEPARATE TABLES FOR USE WHILE A VIEW STORE ONLY ITS QUERIES THEN GOES TO THE DATABASE TO FETCH THE DATA 
+--CTAS is faster than a View
+-- IF the is and update in a original table it comes to the user as a new update from the original table since view it just a query while the CTAS the old data in the CTAS TABLE  remains thesame till it is re-executed or updated FROM THE ORIGINAL TABLE 
+--SQL defines the structure of a CTAS table base on the query
+
+--SYNTAX FOR CTAS (CREATE TABLE AS)
+--FOR MySQL,Postgres and Oracle
+
+CREAT TABLE NAME AS
+(
+SELECT
+FROM
+WHERE
+)
+
+
+--FOR Sql SERVER
+
+SELECT
+INTO New-Table
+FROM
+WHERE
+
+--optimization Queries 
+--switch a view to a CTAS for users to get faster rsponse time 
+
+--CTAS statement...calculate the total number of sale for each month 
+-- iT IS STORE IN THE TABLES 
+SELECT
+DATENAME(month,OrderDate) OrderMonth,
+COUNT(OrderID) TotalOrder
+INTO Sales.MonthlyOrders
+FROM Sales.Orders GROUP BY DATENAME(month, OrderDate)
+
+
+-- how to refresh OR UPDATE a CTAS table its same by dropping and recreating the table same as view 
+
+IF OBJECT_ID('Sales.MonthlyOrders', 'U') IS NOT NULL
+DROP TABLE Sales.MonthlyOrders;
+GO 
+SELECT
+DATENAME(month,OrderDate) OrderMonth,
+COUNT(OrderID) TotalOrder
+INTO Sales.MonthlyOrders
+FROM Sales.Orders GROUP BY DATENAME(month, OrderDate)
+
+-- CTAS is used to create SNAPSHOTS of a database at a particular time 
+--PHYSICAL Data Mart
+--we use CTAS FOR Presisting the data marts of a DWH improves the speed of data retrieval compared to ussing views
+
+--TEMPORARY (TEMP) tables
+--They store intermediate results in temporary storage within the database during the session 
+
+--The database automatically drops the temp tables at the end of every session
+ 
+--SYNTAX AND EXAMPLES
+
+SELECT 
+INTO #NEW-Table
+FROM
+WHERE
+--
+SELECT 
+*
+INTO #Orders
+FROM Sales.Orders
+
+-- How to store intermidiate result from Temp table to our original TABLES
+
+SELECT 
+*
+INTO Sales.OrderTest
+FROM #Orders
+
+--EXECUTING TEMP TABLES
+--We use Temp table for EXTRACT TRANSFORM AND LOAD OPERATIONS (ETL) 
+
+--COMPARISON BETWEEN SUBQUERY,CTE,TMP,CTAS AND views
+--storage
+-- THE SUBQUERY AND CTE results are store in the memory for fast retrieval while the TMP AND CTAS results are stored in the disk for VIEWS the is no data storage since it deals with queries
+--LIFETIME OF objects
+--SUBQUERY,CTE AND TMP are stored temporarily in the database while CTAS and VIEWS objects stays permanently in the database as long as you dont drop them
+--WHEN deleted
+--The SUBQUERY and CTE query end when the query execution end when the query execution ends the database goes to the cashe and delete everything but for the TMP they live till the end of the session, when the session ends the database delete everything while the CTAS and VIEW query stays till you use the DELETE option to delete the table in the database 
+-- SCOPE
+-- SUBQUERY and CTE objects is query from single table while TMP,CTAS and VIEW can acess thier objects from multiple external queries
+
+--STORED PROCEDURES 
+--=================
+--Stored procedures are precompiled database programs that encapsulate frequently used SQL operations along with business logic, improving performance, security, and consistency.
+-- STORE PROCEDURE syntax
+CREAT PROCEDURE ProcedureName AS BEGIN
+--SQL STATEMENT GO here
+END 
+
+--once the procedure is ready RUN
+EXEC ProcedureName
+
+--STEP 1:Write a query
+-- For Customers, Find the total number of customers and average score
+
+SELECT 
+COUNT(*) TotalCustomers,
+AVG(Score) AvgScore
+FROM Sales.Customers
+WHERE Country = 'USA'
+
+--- Step 2: Turning the query into a stored procedure
+CREATE PROCEDURE GetCustomerSummary AS 
+BEGIN
+	SELECT 
+	COUNT(*) TotalCustomers,
+	AVG(Score) AvgScore
+	FROM Sales.Customers
+	WHERE Country = 'USA'
+END
+
+
+--STEP 3:Execute the store procedure
+
+EXEC GetCustomerSummary
+
+--PARAMETERS 
+--It is a placeholders used to pass values as input from the caller to the procedure allowing dynamic data to be processed
+
+ALTER PROCEDURE GetCustomerSummary @Country NVARCHAR(50) 
+AS 
+BEGIN
+SELECT 
+COUNT(*) TotalCustomers,
+AVG(Score) AvgScore
+FROM Sales.Customers
+WHERE Country = @Country
+END
+
+
+--STEP 3:Execute the store procedure
+
+EXEC GetCustomerSummary @Country = 'Germany'
+
+--ADDING DEFAULT VALUE IN A PARAMETERS
+ALTER PROCEDURE GetCustomerSummary @Country NVARCHAR(50) ='USA'
+AS 
+BEGIN
+SELECT 
+COUNT(*) TotalCustomers,
+AVG(Score) AvgScore
+FROM Sales.Customers
+WHERE Country = @Country
+END
+
+--MULTIPLE QUERY IN A STORE procedure
+
+ALTER PROCEDURE GetCustomerSummary @Country NVARCHAR(50) ='USA'
+AS 
+BEGIN
+SELECT 
+COUNT(*) TotalCustomers,
+AVG(Score) AvgScore
+FROM Sales.Customers
+WHERE Country = @Country;
+
+
+
+--Find the total number of orders and total sales
+SELECT 
+COUNT(OrderID) TotalOrders,
+SUM(Sales) TotalSales
+FROM Sales.Orders o
+JOIN Sales.Customers c
+ON c.CustomerID = o.CustomerID
+WHERE c.Country = @Country;
+END
+
+--VARIABLES
+--VARIABLE HOLDS A PLACE IN A MEMORY TO BE USED IN A PROCEDURE 
+ALTER PROCEDURE GetCustomerSummary @Country NVARCHAR(50) ='USA'
+AS 
+BEGIN
+DECLARE @TotalCustomers INT, @AvgScore FLOAT;
+
+SELECT 
+@TotalCustomers = COUNT(*),
+@AvgScore = AVG(Score) 
+FROM Sales.Customers
+WHERE Country = @Country;
+
+PRINT 'Total Customers from ' + @Country + ':' + CAST(@TotalCustomers AS NVARCHAR);
+PRINT 'Average Score from ' + @Country + ':' + CAST(@AvgScore AS NVARCHAR);
+--Find the total number of orders and total sales
+SELECT 
+COUNT(OrderID) TotalOrders,
+SUM(Sales) TotalSales
+FROM Sales.Orders o
+JOIN Sales.Customers c
+ON c.CustomerID = o.CustomerID
+WHERE c.Country = @Country;
+END
+
+
+
+EXEC GetCustomerSummary;
+EXEC GetCustomerSummary @Country ='Germany'
+
+
+--CONTROL FLOW WITH (IF - ELSE) FOR CLEANUP DATA  
+--To do cleanup we need to check all NULL values in the tables 
+
+SELECT 1 FROM Sales.Customers WHERE Score IS NULL AND Country = 'USA'
+
+-----
+ALTER PROCEDURE GetCustomerSummary @Country NVARCHAR(50) ='USA'
+AS 
+BEGIN
+DECLARE @TotalCustomers INT, @AvgScore FLOAT;
+--Prepare & Cleanup Data
+IF EXISTS (SELECT 1 FROM Sales.Customers WHERE Score IS NULL AND Country = @Country)
+BEGIN
+PRINT('Updating NULL Scores to 0');
+UPDATE Sales.Customers
+SET Score = 0
+WHERE Score IS NULL AND Country = @Country;
+END
+ELSE
+BEGIN
+PRINT ('No NULL Score found')
+END;
+
+--Generating Report
+SELECT 
+@TotalCustomers = COUNT(*),
+@AvgScore = AVG(Score) 
+FROM Sales.Customers
+WHERE Country = @Country;
+
+PRINT 'Total Customers from ' + @Country + ':' + CAST(@TotalCustomers AS NVARCHAR);
+PRINT 'Average Score from ' + @Country + ':' + CAST(@AvgScore AS NVARCHAR);
+--Find the total number of orders and total sales
+SELECT 
+COUNT(OrderID) TotalOrders,
+SUM(Sales) TotalSales
+FROM Sales.Orders o
+JOIN Sales.Customers c
+ON c.CustomerID = o.CustomerID
+WHERE c.Country = @Country;
+END
+
+
+EXEC GetCustomerSummary;
+EXEC GetCustomerSummary @Country ='Germany'
+
+
+--ERROR HANDLING IN STORE PROCEDURES  
+
+--SYNTAX
+BEGIN TRY
+--SQL statements that might cause an Error
+END TRY
+
+
+BEGIN CATCH
+--SQL statements that might cause an Error
+END CATCH
+
+------
+ALTER PROCEDURE GetCustomerSummary @Country NVARCHAR(50) ='USA'
+AS 
+BEGIN
+BEGIN TRY
+DECLARE @TotalCustomers INT, @AvgScore FLOAT;
+--Prepare & Cleanup Data
+IF EXISTS (SELECT 1 FROM Sales.Customers WHERE Score IS NULL AND Country = @Country)
+BEGIN
+PRINT('Updating NULL Scores to 0');
+UPDATE Sales.Customers
+	SET Score = 0
+	WHERE Score IS NULL AND Country = @Country;
+	END
+	ELSE
+	BEGIN
+	PRINT ('No NULL Score found')
+END;
+
+--Generating Report
+SELECT 
+	@TotalCustomers = COUNT(*),
+	@AvgScore = AVG(Score) 
+	FROM Sales.Customers
+WHERE Country = @Country;
+
+PRINT 'Total Customers from ' + @Country + ':' + CAST(@TotalCustomers AS NVARCHAR);
+PRINT 'Average Score from ' + @Country + ':' + CAST(@AvgScore AS NVARCHAR);
+--Find the total number of orders and total sales
+SELECT 
+	COUNT(OrderID) TotalOrders,
+	SUM(Sales) TotalSales,
+	1/0
+	FROM Sales.Orders o
+	JOIN Sales.Customers c
+	ON c.CustomerID = o.CustomerID
+WHERE c.Country = @Country;
+END TRY
+BEGIN CATCH
+	PRINT('An error occured. ');
+	PRINT('Error Message: ' + ERROR_MESSAGE());
+	PRINT('Error Number: ' + CAST(ERROR_NUMBER()AS NVARCHAR));
+	PRINT('Error Line: ' + CAST(ERROR_LINE()AS NVARCHAR));
+	PRINT('Error Procedure: ' + ERROR_PROCEDURE());
+END CATCH
+END
+
+
+--STYLING /ORGANIZING 
+--Highlight from the beging of the code to the end and hit the TAB BOTTON  
+
+ALTER PROCEDURE GetCustomerSummary @Country NVARCHAR(50) ='USA'
+AS 
+	BEGIN
+	BEGIN TRY
+	DECLARE @TotalCustomers INT, @AvgScore FLOAT;
+	--=============================
+	--STEP 1:Prepare & Cleanup Data
+	--=============================
+	IF EXISTS (SELECT 1 FROM Sales.Customers WHERE Score IS NULL AND Country = @Country)
+	BEGIN
+	PRINT('Updating NULL Scores to 0');
+	UPDATE Sales.Customers
+		SET Score = 0
+		WHERE Score IS NULL AND Country = @Country;
+		END
+		ELSE
+		BEGIN
+		PRINT ('No NULL Score found')
+	END;
+	--=============================
+	--STEP 2:Generating Report
+	--=============================
+	--Calculating Total Customers and Average Score For specific country
+	SELECT 
+		@TotalCustomers = COUNT(*),
+		@AvgScore = AVG(Score) 
+		FROM Sales.Customers
+	WHERE Country = @Country;
+
+	PRINT 'Total Customers from ' + @Country + ':' + CAST(@TotalCustomers AS NVARCHAR);
+	PRINT 'Average Score from ' + @Country + ':' + CAST(@AvgScore AS NVARCHAR);
+
+	--===========================================================================
+	--STEP 3:Calculate the total number of orders and total sales from specific country
+	--===========================================================================
+	SELECT 
+		COUNT(OrderID) TotalOrders,
+		SUM(Sales) TotalSales
+		FROM Sales.Orders o
+		JOIN Sales.Customers c
+		ON c.CustomerID = o.CustomerID
+	WHERE c.Country = @Country;
+	END TRY
+
+	--=========================
+	--Error Handling 
+	--=========================
+	BEGIN CATCH
+		PRINT('An error occured. ');
+		PRINT('Error Message: ' + ERROR_MESSAGE());
+		PRINT('Error Number: ' + CAST(ERROR_NUMBER()AS NVARCHAR));
+		PRINT('Error Line: ' + CAST(ERROR_LINE()AS NVARCHAR));
+		PRINT('Error Procedure: ' + ERROR_PROCEDURE());
+	END CATCH
+	END
+
+
+	
+--============	
+--TRIGGERS
+--============
+
+-- This are special store procedures (set of statement) that automatically runs in response to a specific event on a table or view
+--We have 3 types of triggers the 
+--DML TRIGGERS which response to DML QUERRIES LIKE INSERT,UPDATE AND DELETE 
+--DDL TRIGGERS which response to DDL QUERRIES LIKE CREATE,ALTER AND DROP 
+-- LOGGIN TRIGGERS which response to any LOGGIN events 
+--With the DML triggers we have the RUNS AFTER EVENT and RUN DURING EVENT triggers
+
+--SYNTAX  
+CREATE TRIGGER TriggerName ON TableName
+
+--Define when the trigger should fire
+AFTER INSERT,UPDATE,DELETE 
+--Tell SQL what should happen if the trigger is fired
+BEGIN
+--SQL Statement go from here
+END  
+
+--Creating a trigger in a database first create a logs table where the logs information 
+
+CREATE TABLE Sales.EmployeesLogs (
+LogID INT IDENTITY(1,1) PRIMARY KEY,
+EmployeeID INT,
+LogMessage VARCHAR(255),
+LogDate DATE
+)
+
+--CREATE TRIGGER ON EMPLOYEES TABLE  
+
+CREATE TRIGGER trg_AferInsertEmployee ON Sales.Employees
+	AFTER INSERT
+	AS
+	BEGIN
+		INSERT INTO Sales.EmployeeLogs (EmployeeID, LogMessage, LogDate)
+		SELECT
+			EmployeeID,
+			'New Employee Added =' + CAST(EmployeeID AS VARCHAR),
+			GETDATE()
+	FROM INSERTED
+	END
+	
+	
+--INSERT DATA INTO EMPLOYEE TABLE TO TRIGGER THE TRIGGER CREATED  
+
+
+--=============
+--SQL INDEXES  
+--=============
+-- An Index is a data structure that provides quick access to data optimizing the speed of your queries
+
+--INDEX TYPE  
+--STRUTURE this index fucuses on how the table is build it is made up of CLUSTERED and NON-CLUSTERED INDEX 
+--STORAGE this index fucuses on how data is store and it made up of ROWSTORE INDEX and COLUMNSTORE INDEX  
+-- FUNCTION BASE INDEX which is made up of UNIQUE and FILTERED INDEX  
+
+--One might focus on the performance while the other focus on the Query
+
+--HEAP STRUCTURES  
+--HEAP is a table without a clustered index  
+--FULL TABLE SCAN mean the database scan the entire table page by page and row by row searching for data
+--=====================
+--CLUSTERED BASE index
+--=====================
+--B-TREE (BALLANCE)INDEX  
+--It is a hierachical structure of storing data at the leaves, to help quickly locate data
+--It starts from the Root Node to the Interval Node To the Leaf Node
+--====Leaf Level Node====
+-- The leaf nodes are the B-TREE for the index which contains the actual DATA 
+--===Intermediate node=====
+-- it stores key values and pointers to locate data rows
+--THE INDEX PAGE contain pointers refrencing the actual page 
+--It contains pointers to each group of IDs 
+--====Root Node======
+--this index page it a contain pointers that refrencing another index page 
+
+--=====================
+--NON-CLUSTERED INDEX  
+--=====================
+--The non clustered index wont reorganize or change anything on the data page 
+--with this type of index the database goes and create and INDEX page, then assign a pointer to each row in a table and a RID 
+--The INDEX PAGE of a NON-CLUSTERED INDEX contains the CUSTOMERID,FIELD or PAGE,PAGE NUMBER, ROW AFFECTED which is all called the RID (ROW IDENTIFIER)
+--This index pages are store in the LEAF NODE 
+--Then the next index page is store in a intermediate node which stores pointers pointing to the leaf nodes containing the index page of the RID
+--====Root Node======
+--this index page it a contain pointers that refrencing another index page 
+
+--=======================
+--SIDE BY SIDE CONPARISON 
+--=======================
+
+--THE Clustered index physically sorts and store the rows while non-clustered index separate structure with pointers to the data
+--the clustered index create one index per table while non-clustered index create multiple indexes in a single table 
+--the clustered index reads faster than the non-clustered index
+--the clustered index is slower to write due to potential data row reordering while the non-clustered index is fast since the data order is not affected during indexing 
+--the clustered index is more efficient than the non-clustered index because the is an extra layer in the non-clustered index which turns to consume more space 
+--the clustered index is used in data that update in not frequent EXAMPLES
+--clustered indexe                      --non clustered index
+-- unique column                        --columns frequently used in seach         
+--Not frequently modified columns         conditions and joins 
+--Improve range query performance          --exact match queries
+
+---CREATE Index SYNTAX  
+--Default is the NON-CLUSTERED Index
+CREATE INDEX index_name ON table_name (city)
+--CLUSTERED INDEX 
+CREATE CLUSTERED INDEX index_name ON table_name (ID)
+
+--An index with multiple columns is called a composite index 
+CREATE INDEX index_name ON table_name (Last_name ASC, First_name DESC)
+
+
+--/*LOAD A DATA FROM AN EXISTING PAGE TO A NEW PAGE*/
+
+SELECT 
+*
+INTO Sales.DBCustomers
+FROM Sales.Customers  
+
+--CREATING A CLUSTERED index
+CREATE CLUSTERED INDEX idx_DBCustomers_CustomerID
+ON Sales.DBCustomers (CustomerID)
+
+-- You cannot create morethan 1 clustered index on a table
+--DROPPING AN IDEX 
+--Incase of and eror when creating an index you need to drop the index and create an new one 
+DROP INDEX idx_DBCustomers_CustomerID ON Sales.DBCustomers
+
+--NON-CREATING A CLUSTERED idex
+CREATE NONCLUSTERED INDEX idx_DBCustomers_LastName
+ON Sales.DBCustomers (LastName)
+
+--or
+CREATE INDEX idx_DBCustomers_LastName
+ON Sales.DBCustomers (LastName)
+
+--===============
+--COMPOSITE INDEX 
+--===============
+--it is an index that has multiple culumns inside thesame index 
+--when quering data in an index table you should follow the pattern that the index was created
+
+CREATE INDEX idx_DBCustomers_CountryScore
+ON Sales.DBCustomers (Country, Score)
+
+--======================
+--COLUMNSTORE INDEX  
+--======================
+--This is a method in which the SQL splits the table and store the DATA column by column 
+--SYNTAX  
+--ROWSTORE INDEX  
+
+CREATE NONCLUSTERED INDEX IX_Customers_Country ON Customers (Country)
+
+CREATE CLUSTERED INDEX IX_Customers_ID ON Customers (ID)
+
+--COLUMNSTORE INDEX  
+
+CREATE NONCLUSTERED COLUMNSTORE INDEX IX_Customers_Country ON Customers (Country)
+
+--IF you are creating a clustered columnstore you must not specify column 
+
+CREATE CLUSTERED COLUMNSTORE INDEX IX_Customers ON Customers 
+
+CREATE CLUSTERED COLUMNSTORE INDEX IX_DBCustomers ON Sales.DBCustomers
+
+--UNIQUE INDEX  
+--Ensures no duplicate values exist in specific COLUMN
+--It enforces uniqueness in a data 
+--it increases performance 
+--with unique index WRITING is SLOWER while READING is FASTER 
+
+--SYNTAX 
+
+CREATE [UNIQUE] [CLUSTERED | NONCLUSTERED] COLUMNSTORE INDEX IX_Customers_Country ON Customers (Country)
+
+CREATE UNIQUE NONCLUSTERED INDEX idx_Products_Product ON Sales.Products (Product)
+
+--==============
+--FILTERED Index
+--==============
+--A filtered index that includes only rows meeting the specified conditions
+--targeted optimization 
+--reduce storage
+--You can not use a filtered index in a clustered index
+--You can not use a filtered index in a columnstore index
+--SYNTAX 
+CREATE [UNIQUE] [NONCLUSTERED] COLUMNSTORE INDEX Index_name ON table (Column)
+WHERE [Condition]
+
+CREATE NONCLUSTERED INDEX idx_Customers_Country ON Sales.Customers (Country) WHERE Country = 'USA'
+
+--===================================
+--WHEN TO USE THE CORRECT/RIGHT INDEX  
+--====================================
+--HEAP..It is used for fast insert 
+--CLUSTERED INDEX...Used for PRIMARY KEY if not then for date column 
+--COLUMNSTORE INDEX..For Analytical queries, reduce size of large table
+--NON-CLUSTERED INDEX...Used for NON-PRIMARY KEY column (foreign keys,joins and filters)
+--FILTERED INDEX...Used for target subset of data, reduce size of index or sorting)
+--UNIQUE INDEX...Used for data intergrity, enforce uniqueness improve query speed 
+
+--===============================
+--INDEX MANAGEMENT AND MONITORING 
+--===============================
+--TO check all the indexes in a particular table 
+--List all indexes on a specific table 
+
+sp_helpindex 'Sales.DBCustomers'
+
+--To check the list of indexes in our database and metadata 
+--Monintoring Index Usage
+
+SELECT * FROM sys.indexes
+-- to check dynamic index ussage 
+--this view tells you how each and every index in the database is utilized and the frequency
+SELECT * FROM sys.dm_db_index_usage_stats
+
+--this query gets the insights to all the indexes 
+--Monitor index usage
+--Once you get to a new environment always gather statistics on all the index delete the unused indexes 
+
+SELECT 
+	tbl.name AS TableName,
+	idx.name AS IndexName,
+	idx.type_desc AS IndexType,
+	idx.is_primary_key AS IsPrimaryKey,
+	idx.is_unique AS IsUnique,
+	idx.is_disabled AS IsDisabled,
+	s.user_seeks AS UserSeeks,
+	s.user_scans AS UserScans,
+	s.user_lookups AS Userlookups,
+	s.user_updates AS UserUpdates,
+	COALESCE(s.last_user_seek,s.last_user_scan) LastUpdate
+FROM sys.indexes idx
+JOIN sys.tables tbl
+ON idx.object_id = tbl.object_id
+LEFT JOIN sys.dm_db_index_usage_stats s
+ON s.object_id = idx.object_id
+AND s.index_id = idx.index_id
+ORDER BY tbl.name, idx.name
+
+--=========================
+--MONITOR DUPLICATE INDEXES
+--========================
+
+SELECT 
+	tbl.name AS TableName,
+	col.name AS IdexColumn,
+	idx.name AS IndexName,
+	idx.type_desc AS IndexType,
+	COUNT(*) OVER (PARTITION BY tbl.name, col.name ) ColumnCount
+FROM sys.indexes idx
+JOIN sys.tables tbl ON idx.object_id = tbl.object_id
+JOIN sys.index_columns ic ON idx.object_id = ic.object_id AND idx.index_id = ic.index_id
+JOIN sys.columns col ON ic.object_id = col.object_id AND ic.column_id = col.column_id
+ORDER BY ColumnCount DESC
+
+--======================
+--UPDATING STATISTICS  
+--======================
+-- Statistics are metadata information about your tables in the database 
+-- it is like a report of data present in the your tables
+-- the database uses statistics to get the best, fast and relaible way the retrieve our data from the database
+--the databse uses either (TABLE SCAN, INDEX SCAN or SEEK) to load data from the database and to do this the database uses the statistics to choose the best way to load a data
+--so we have to regularly update the statistict when ever a new data is being loaded into the database this optimizes the performance of the databse 
+
+-----------------------------------------------
+-- CHECK IF STATISTICS IS UPTO DATE or OUTDATED
+-----------------------------------------------
+
+SELECT 
+SCHEMA_NAME(t.schema_id) AS SchemaName,
+t.name AS TableName,
+s.name AS StatisticName,
+sp.Last_updated AS LastUpdate,
+DATEDIFF(day, sp.Last_updated, GETDATE()) AS LastUpdateDay,
+sp.rows AS 'Rows',
+sp.modification_counter AS ModificationsSinceLastUpdate
+FROM sys.stats AS s
+JOIN sys.tables t
+ON s.object_id = t.object_id CROSS APPLY sys.dm_db_stats_properties(s.object_id, s.stats_id) AS sp 
+ORDER BY
+sp.modification_counter DESC;
+
+--UPDATE STATISTIC SYNTAX 
+--For specific table  
+UPDATE STATISTIC table_name statistic_name
+UPDATE STATISTICS Sales.Employees _WA_Sys_00000002_37A5467C
+
+--All table  
+UPDATE STATISTIC table_name 
+UPDATE STATISTICS Sales.Employees
+
+--Update Statistics for entire database 
+EXEC sp_updatestats
+
+--When to update statistics in your database 
+--for small database you can run every day ranginges from (50-300GB)
+-- If its a big database you can schedule in the weekend (300-TBs)
+--And every after data migration just to make sure the statistics is upto date 
+
+---MONITORING FRAGMENTATION
+ --this are unused spaces in the datapages which the database is not fiiling them 
+ -- or the data is not sorted properly in the index
+ --THE 2 TYPES OF FRANGMENTATION METHODS
+ --REORGANIZE  
+ --this method defragments the leaf node of the index in order to have it organized and sorted again with the logical order 
+ 
+ --REBUILD  
+ --this method goes and delete then recreate a new index from scratch this is ment for heavy operation by doing this all fragmentations get eliminated
+ 
+ --CHECKING INDEX HEALTH
+ --this view gives you an overview of the indexes with fragments
+ select *
+FROM sys.dm_db_index_physical_stats (DB_ID(), NULL, NULL, NULL, 'LIMITED')
+-- avg_fragmentation_in_person indicate how-out-of order, pages are within the index
+--0% means no fragmentations (perfect)
+--if it is 100% means the index id out-of-order and it should be rebuild 
+--TO CHECK THE FRAGMENTATED OBJECTS AND INDEX IN THE DATABASE 
+
+
+SELECT
+tbl.name AS TableName,
+idx.name AS Indexname,
+s.avg_fragmentation_in_percent,
+s.page_count
+FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'LIMITED') AS s
+INNER JOIN sys.tables tbl
+ON s.object_id = tbl.object_id
+INNER JOIN sys.indexes AS idx
+ON idx.object_id = s.object_id
+AND idx.index_id =s.index_id
+ORDER BY s.avg_fragmentation_in_percent DESC
+
+--WHEN TO defragments
+--0-10%  No Action needed 
+--10-30% Reorganize  
+--30-Above  Rebuild  
+
+--Reorganize Index Syntax  
+ALTER INDEX index_name ON table_name REORGANIZE  
+ALTER INDEX idx_Customers_Country ON Sales.Customers REORGANIZE  
+
+--Rebuild Index Syntax  
+ALTER INDEX index_name ON table_name REBUILD
+ALTER INDEX idx_Customers_Country ON Sales.Customers REBUILD
+
+--===============
+--EXECUTION PLAN
+--===============
+--This is a road map generated by the database on how to execute query step by STEP
+--Estimated vs Actual Plan  
+--if the prediction dont match the actual execution plan, this indicate issues like inaccurate statistics or outdated indexes leading to poor performance  
+
+--HOW TO READ AN EXECUTION PLAN  
+ --We read the execution plan from right to left 
+--TABLE SCAN...Reads the entire table page by page row by row "everything" which can lead to slower query performance on large table
+--Index scan..scan all data in anindex to find matching Rows
+--always check your execution plan to be sure your database is ussing the recent index 
+--doing aggregation on big tables a collumn store index is usefull
+--check the execution plan and create index on the query that is ussing high resource 
+--* To compare your execution plan save one of the queries excution plan by right click then on the other plan use the compare show plan option after right clicking to compare both plans 
+
+--==========
+--SQL HINTS  
+--==========
+
+--This are commands added to a query to force the database to run it in a specific way for better performance
+
+	SELECT
+		o.Sales,
+		c.Country
+	FROM Sales.Orders o
+	LEFT JOIN Sales.Customers c
+	ON o.CustomerID = c.CustomerID
+	--=====
+	--HINT
+	--=====
+	OPTION (HASH JOIN)
+	
+	--===================
+	--PARTITIONING
+	--===================
+	--it divides big tables in to smaller tables 
+	--CREATING PARTITION FUNCTION  
+	--Partition by DATE (RANGE)  
+
+--Step1: Create a partition function 
+
+CREATE PARTITION FUNCTION PartitionByYear (DATE)
+AS RANGE LEFT FOR VALUES ('2023-12-31', '2024-12-31', '2025-12-31')
+
+--Query list all existing partition function
+
+SELECT
+name,
+function_id,
+type,
+type_desc,
+boundary_value_on_right
+FROM sys.partition_functions
+
+--FILEGROUPS
+-- It is a logical container of files 
+--it store partitions into file groups 
+--step2:Create filegroups
+ALTER DATABASE SalesDB ADD FILEGROUP FG_2023;
+ALTER DATABASE SalesDB ADD FILEGROUP FG_2024;
+ALTER DATABASE SalesDB ADD FILEGROUP FG_2025;
+ALTER DATABASE SalesDB ADD FILEGROUP FG_2026;
+
+--DROPPING A FILE GROUP
+ALTER DATABASE SalesDB REMOVE FILEGROUP FG_2023;
+
+--Query list of all filegroups
+SELECT *
+FROM sys.filegroups
+WHERE type ='FG'
+
+--CREATING DATAFILES  
+--Datafile contain our physical data 
+--filegroups are logical containers while datafile are physical files where the actual data is STORED
+
+--step3: Add .ndf file to each filegroup
+ALTER DATABASE SalesDB ADD FILE
+(
+NAME=P_2023,---Logical Name
+FILENAME = 'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\P_2023.ndf'
+
+)TO FILEGROUP FG_2023;
+
+ALTER DATABASE SalesDB ADD FILE
+(
+NAME=P_2024,---Logical Name
+FILENAME = 'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\P_2024.ndf'
+
+)TO FILEGROUP FG_2024;
+
+ALTER DATABASE SalesDB ADD FILE
+(
+NAME=P_2025,---Logical Name
+FILENAME = 'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\P_2025.ndf'
+
+)TO FILEGROUP FG_2025;
+
+ALTER DATABASE SalesDB ADD FILE
+(
+NAME=P_2026,---Logical Name
+FILENAME = 'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\P_2026.ndf'
+
+)TO FILEGROUP FG_2026;
+--NOTE!!FOR PHYSICAL PATH ASK DBA
+C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA
+
+--CHECK THE LIST OF ALL FILES IN THE DATABASE AFTER CREATION 
+
+SELECT
+fg.name AS FilegroupName,
+mf.name AS LogicalName,
+mf.physical_name AS PhysicalFilePath,
+mf.size / 128 AS SizeInMB
+FROM
+sys.filegroups fg
+JOIN
+sys.master_files mf ON FG.data_space_id = mf.data_space_id
+WHERE
+mf.database_id = DB_ID('SalesDB');
+
+--HOW TO CONNECT THE PARTITIONS CREATED TO OUR FILE GROUPS USSING SCHEMAS(TABLES)via MAPPING
+--the partition function decides how to split our data to multiple partitions 
+--while the partition scheme maps our partitions to the file groups and the file groups are like folders 
+
+--step4:create partition scheme
+
+CREATE PARTITION SCHEME SchemePartitionByYear
+AS PARTITION PartitionByYear
+TO (FG_2023, FG_2024, FG_2025, FG_2026)
+
+--Query lists all partition scheme
+
+
+SELECT
+	ps.name AS PartitionSchemeName,
+	pf.name AS PartitionFunctionName,
+	ds.destination_id AS PartitionNumber,
+	fg.name AS FilegroupName
+FROM sys.partition_schemes ps
+JOIN sys.partition_functions pf ON ps.function_id = pf.function_id
+JOIN sys.destination_data_spaces ds ON ps.data_space_id = ds.partition_scheme_id
+JOIN sys.filegroups fg ON ds.data_space_id = fg.data_space_id
+
+--========================
+--CREATING PARTITION TABLE  
+--========================
+--STEP 5: Creat the partition table
+
+CREATE TABLE Sales.Orders_Partitioned
+(
+OrderID INT,
+OrderDate DATE,
+Sales INT
+)ON SchemePartitionByYear (OrderDate)
+
+--STEP 6: Insert Data into the Partitioned Table
+
+INSERT INTO Sales.Orders_Partitioned VALUES (1, '2023-05-15', 100);
+
+--Query the data
+
+SELECT * FROM Sales.Orders_Partitioned
+
+--CHeck in which partition is our data residing 
+SELECT 
+p.partition_number AS PartitionNumber,
+f.name AS PartitionFilegroup,
+p.rows AS NumberOfRows
+FROM sys.partitions p
+JOIN sys.destination_data_spaces dds ON p.partition_number = dds.destination_id
+JOIN sys.filegroups f ON dds.data_space_id = f.data_space_id
+WHERE OBJECT_NAME(p.object_id) = 'Orders_Partitioned';
+
+--Partition scheme can be found in the 'STORAGE' section of the database
+
+--=====================
+--Partition Performance
+--=====================
+--performance tips for fetching 
+--select only what you need 
+--Avoid unnecesary DISTINCT & ORDER BY  
+--For exploration purpose , limmit rows (atleast TOP 10)
+--Create noncluster index on frequently used column in WHERE CLAUSE
+--Avoid applying functions to columns in WHERE clause 
+--Avoid leading wildcards as they prevent ussage
+--use IN instead of multiple OR  
+
+
+--====================
+--=HOW TO USE COPILOT  
+--====================
+--IN a virtual studio code 
+--HOW TO WORK WITH CHATGBT  
+--You are a senoir SQL expert and i am a data analysit working on an SQL SERVER
+--Explain the concept of the SQL Window functions and do the following 
+--Explain each Window Function and show the syntax
+--Describe why they are important and when to use them 
+--list the top 3 use cases and explain why you choose this 3
+--the tone should be conversational and direct as if you are speaking to me in person 
+
+--==============
+--SOLVE SQL TASK  
+--==============
+
+--In my SQL Server database we have two tables
+--the first is 'orders' with the following columns (list the columns)
+--the second is 'costomers' with the following columns (list the columns)
+--the do the following 
+--write a query to rank customers based on thier sales
+--the result should include the customers id,full names,country,total sales and thier rank
+--include comments but avoidcommenting on obvious parts 
+--write 3 diffrent version of the query to archive this Task
+--evaluate and explain which version is best in terms of readability and performance 
+
+
+--=======================
+--IMPROVE THE READABILITY
+--=======================
+--The following SQL Server query is long and hard to understand so do the following
+--improve it READABILITY
+--Remove any redundancy in the query and consolidate it 
+--include comments but avoid commenting on obvious part
+--Explain each improvement to understand the reasoning behind it 
+
+--==============================
+--OPTIMIZE THE PERFORMANCE QUERY
+--==============================
+--The following SQL Server query is SLOW so do the following 
+--Propose optimizations to improve its performance 
+--provide the improved Query
+--Explain each improvement to understand the reasoning behind it 
+
+--========================
+--OPTIMIZE EXECUTION PLAN  
+--========================
+--The image is the execution plan of SQL Server query so do the following 
+--Descrive the execution plan step by step 
+--identify the performance bottlenecks and issues 
+--suggest ways to improve performance and optimize the execution plan 
+
+--=================
+--DEBUGGING QUERIES 
+--=================
+
+--The following SQL Server query cause this error:[Error Message GOES HERE] So do the following 
+--Explain the error message 
+--find the root cause of the ISSUES
+--suggest how to fix it 
+
+--===================
+--EXPLAIN THE RESULT 
+--===================
+--I dint understand the result of the following SQL Server query so do the following 
+--Breake down the SQL processes the query steps by step
+--Explain each stage and how the result is formed
+--[SQL Query Goes Here]
+
+--======================
+--STYLING AND FORMATTING 
+--======================
+--The following SQL Server query hard to understand  so do the following 
+--Restyle the code to make it easier to READ
+--Align column aliases
+--Keep it compact - do not introduce unnecessary new lines
+--Ensure the formatting follows best practice 
+
+--============================
+--DOCUMENTATION AND COMMENTS
+--============================
+
+--The following SQL Server query lacks comments and documentation, so do the following 
+--Insert a leading comment at the start of the query, describeing it overall purpose
+--Add comments only where clarification is necessary,avoiding obvious statements
+--Create a separate document explaining the business rules implemented by the Query
+--Create another separate document decribing how the query works 
+--[SQL Query HERE]
+
+--=====================
+--IMPROVE DATABASE DDL
+--=====================
+--The following SQL Server DDL Script has to be optimized. so do the following 
+--NAMING...Check the consistency of table/column nmae,prefixes,standards
+--DATA TYPE...Ensure data type are appropriate and optimized
+--INTEGRITY...Verify the integrity of primary key and foreign keys 
+--INDEXES...Check that indexes are sufficient and avoid redundancy
+--NORMALIZATION...Ensure proper normalization and avoid redundancy
+--[SQL Query HERE]
+
+--========================
+--GENERATE TEST DATA SETS
+--========================
+--I need dataset for testing for the following SQL Server DDL..so do the following 
+--Generate test datasets as insert statements
+--Dataset should be realistic
+--Keep the dataset small
+--Ensure all primary/foreign key relationships are valid (use matching IDs)
+--Dont introduce any NULL Values 
+--[SQL Query HERE]
+
+--=============
+--PRACTICE SQL
+--=============
+--Act as an SQL trainer and help me practice SQL Window Function so do the following 
+--Make it interactive practicing, you provide task and give SOLUTIONS
+--Provide a sample Dataset
+--Give SQL tasks that gradually increase in difficulty
+--Act as an SQL Server and show the result of my querries 
+--Review my queries, provide feedback, and suggest improvements 
+
+--=================================
+--DATA ANALYTICS PROJECT USING SQL
+--=================================
+--There are three types
+
+
+--2 EXPLORATORY DATA ANALYSIS (EDA)
+--===============================
+--It is to understand and cover insights of our data sets one can learn how to ask the correct questions about our data and how to find the answer ussing SQL by ussing basic SQL skills 
+--Basic queries
+--Data Profiling
+--Simple aggregations
+--subquery
+
+--3 ADVANCED DATA ANALYTICS  
+--=======================
+--Here we solve real business problems using adnanced SQL techniques in order to answer business questions,finding trends of the time 
+--Answer Business Questions 
+--Complex queries
+-- Window Function
+--CTE  
+--SUBQUERIES
+--Reports 
+
+--1 DATA WAREHOUSE
+--===============
+--Its all about organize and structure data for data analysis and it is the foundation for any analytics project and it is divided in to sub parts
+--ETL/ELT Processing (Extract Transform Load)
+--Data Architecture
+--Data Integration 
+--Data Cleansing 
+--Data load
+--Data Modeling 
+
+--ETL METHODS  
+--===========
+--EXTRACTION  
+--Pulling to the source system or the source system is pushing into target system
+--And we have 2 types of exptraction,
+--FULL EXTRACTION AND INCREMENTAL EXTRACTION FROM TABLES 
+
+--EXTRACTION TECHNIQUES 
+-----------------------
+--Manual Extraction
+--Database Querying
+--API call
+--Event Based Streaming like KAFCA 
+--CDC (Change Data Capture)
+--Web Scratching 
+
+--TRANSFORMATION
+----------------
+--Data Enrichment 
+--Data Integration
+--Derived Columns 
+--Data Normalization and Standardizatio
+--Business Rules & logic
+--Data aggregations
+
+--LOADING METHODS
+-----------------
+--FULL LOAD
+--Truncate,Upset,Drop,Create and insert
+--INCREMENTAL LOAD
+--Upset,Append and Merge 
+
+--CREATING PROJECT PLAN USSING NOTION 
+--This tool helps you organize your idear, plan and resources 
+
+--The three main face of data warehouse project is 
+--Requirement analysis
+--Design Achitecture
+--Project Initialization
+--in larger companies they use TOOLS LIKE GIRA 
+
+--UNDERSTANDING PROJECT REQUIREMENTS 
+-------------------------------------
+--Project Requirement 
+--OBJECTIVE 
+--Develope a mordern data warehouse ussing SQL Server to consolidate sales data, enabling analytical reports and informed decision making
+--SPECIFICATION
+--DATA SOURCES..Import data from two source systems (ERP and CRM) provided as CSV FILES
+--DATA QUALITY..Cleanse and resolve data issue prior to analsis
+--INTEGRATION..Combine both source into a single,user-friendly data designed for analytical queries
+--SCOPE..Focus on the latest dataset only,historization is not required
+--DOCUMENTATION..Provide clear documentation of the data model to supporrt both stakeholders and analytics Team
+
+--DATA ARCHITECTURE
+-------------------
+--The are four major types of data warehouse aproach
+--DATA WAREHOUSE... FOR REPORTING AND BUSINESS INTELIGENCE 
+--DATA LAKE...TO STORE STRUCTURE DATA AND SEMI STRUCTURE DATA WE USE THIS APROACH IF WE HAVE MIX TYPE OF DATA LIKE DATABAASE TABLE,LOGS,VIDEOS ALSO THIS WORKS FOR BUSINESSES WITH ADVANCE ANALYTICS OR MACHINE LEARNING 
+--DATA LAKEHOUSE... It is a mix between data lake and data warehouse the is a flexibility to get diffrent types of data 
+--DATA MESH...Here the system is decentralized here there are multiple departments and domains 
+
+--HOW TO BUILD A DATA WAREHOUSE 
+-------------------------------
+--INMON APROACH.
+--Here we start with the first aproach which is the Stage where the data lands which is collected for the multiple source 
+--the data is organized in a Enterprise Data Warehouse (EDW)here the data is moduled,formated, structured with all the tables normalized this stage is all about intergrating the data for the multiple sources
+--Data Marts..here a small subset of the data from the data warehouse is collected and processed making it ready to be consumed for reporting and here other reporting tools like power BI it also connected for proper reporting 
+
+--KIMBALL aproach
+--This aproach skips the Enterprise Data warehouse, it moves from STAGE to DATA MARTS it is a fast aproach but risky 
+
+--DATA VAULT  
+--This aproach the EDW is eliminated but more steps are added we have the ROW VALT which is the actual Date that is cleans, then the BUSINESS VAULT which contains the business inteligence, rules and transformations that prepares the data for data marts 
+
+--MEDALLION ARCHITECTURE 
+--this apreach is made up of 3 layers which is the BRONZ LAYER where the data is collected for tracability, next is the SILVER LAYER where the data is being transformed and cleanse without any roles applied, then comes the GOLD LAYER where diffrent type of object is being build with the data processed from the silver this layer gets the data ready for machine learning and reporting
+
+
+--DESIGNING DATA WAREHOUSE LAYERS 
+--===============================
+--Here you have to define the purpose of each layer 
+
+--BRONZE LAYER
+---------------
+--DEFINITION..Row,Unprocessed data as is from sources 
+--OBJECTIVE...Tracability and Debugging 
+--OBJECT TYPE...table
+--LOAD METHOD...Full Load (Truncate and Insert)
+--DATA TRANSFORMATION...None (as-is)
+--DATA MODELING...None(as-is)
+--TARGET AUDIENCE...Data Engineers  
+
+--SILVER LAYER  
+--------------
+--DEFINITION..Clean and Standardized data 
+--OBJECTIVE...(Intermediate layer) Prepare data for Analysis
+--OBJECT TYPE...table
+--LOAD METHOD...Full Load (Truncate and Insert)
+--DATA TRANSFORMATION...Data Cleansing, Data Standardization, Data Normalization, Derived column, Data Enrichment
+--DATA MODELING...None(as-is)
+--TARGET AUDIENCE...Data Analysis, Data Engineers  
+
+--GOLD LAYER
+------------
+--DEFINITION..Business-Ready data
+--OBJECTIVE...Provide data to be consumed for reporting and Analytics
+--OBJECT TYPE...Views  
+--LOAD METHOD...None 
+--DATA TRANSFORMATION...Data Intergration, Data Aggregation, Business Logic and Rules
+--DATA MODELING...Start Schema, Aggregated Objects, Flat Tables 
+--TARGET AUDIENCE...Data Analysis, Business Users 
+
+ --ALL LAYERS SHOULD CARRY ITS OWN UNIQUE TASK 
+ 
+ --================================
+ --DRAW DATA WAREHOUSE ARCHITECTURE
+ --================================
+ 
+--Here we draw to and display the diffrent type of data architecture we have in the data warehouse 
+
+--REFINE PROJECT Plan
+--====================
+
+--DEFINE THE NAMING CONVENSION OF THE PROJECT 
+---------------------------------------------
+
+--Here all set of rules for naming anything in the project is being defined like the DATABASE,SHECMAS,TABLES,COLUMNS AND ROWS 
+--This avoid data inconsistency
+--here you choose the nameing convension either Camel case,kebab case or snake case (lower case)
+--Decide the language should be used and avoid reserved words for object names eg TABLES to name a TABLE 
+--For BRONZE LAYER all name must start with the source system nmae and table names match their original names remaining eg(crm,erp)
+--table name should be exact with source system name e.Gap crm_customer_info which means customers information from CRM system 
+
+
+--The SILVER LAYER 
+---For SILVER LAYER all name must start with the source system nmae and table names match their original names remaining eg(crm,erp)
+
+--table name should be exact with source system name e.Gap crm_customer_info which means customers information from CRM system 
+
+--GOLD RULES  
+--All names must use meaningfull business aligned names for tables, starting with the category prefix
+--Describe the role of the table as dim (dimension) or fact (fact table)
+--Descriptive name of the table, aligned with the business domain (e.g customers,product,sales)
+--examples dim_customers---Dimension table for CUSTOMERS
+--fact_table---Fact table containing sales transactions 
+
 --CREATING A BRAND NEW DATABASE WAREHOUSE 
 ------------------------------------------
 
 --Create database 'Datawarehouse'
 --creating a new database you have to switch to the master database
-/*Master database is a system database where you can create other databases*/ 
+--Master database is a system database where you can create other databases 
 USE master;
 --Create the database 
 CREATE DATABASE Datawarehouse; 
@@ -19,3 +3807,564 @@ GO
 CREATE SCHEMA gold;
 GO
 --to check the newly created schema look down in security in the database you find SCHEMA 
+
+--BUILDING THE BRONZE LAYER
+---------------------------
+--Before we start coding th bronze layer we have to understand the source system 
+--so first have an interview with the source system experts, ask questions in order to understand the nature of the source system i am connecting to the data warehouse you ask questions like 
+--who owns the DATA
+--what business process its supports(supply chain,logistics or HR) 
+--System and data documentation 
+--the data module of the source system 
+--how the data is stored in the (oracle,mysql,sql server)
+--what are the intergration capabilities (API,kafka,file extract dirty data)
+--can we use incrimental or full LOAD
+--is the data scope ot historic needs
+--the expected size of EXTRACT
+--are there any data limitation
+--how to avoid impacting the source system performace 
+--is there any authentication or authorization 
+--next is the data injestion(coding)how to load the source to the data warehouse 
+--the next step is data validation or quality control most especially comparing the tables from the source system if it matches with our database 
+
+--CREATING THE TABLES OF THE BRONZE
+-----------------------------------
+
+--You have to understand the meta data, the schema and structure of the incoming data 
+-- Sometimes you can go and explore the incoming data to understand the structure of the incoming data 
+--So looking at the incoming data we create the table ussing the naming convension 
+--Create a DDL statements for each file in the systems 
+
+CREATE TABLE bronze.crm_cust_info (
+cst_id INT,
+cst_key NVARCHAR(50),
+cst_firstname NVARCHAR(50),
+cst_lastname NVARCHAR(50),
+cst_material_status NVARCHAR(50),
+cst_gndr NVARCHAR(50),
+cst_create_date DATE
+);
+
+
+CREATE TABLE bronze.crm_prd_info (
+prd_id INT,
+prd_key NVARCHAR(50),
+prd_name NVARCHAR(50),
+prd_cost INT,
+prd_line NVARCHAR(50),
+prd_start_date DATETIME,
+prd_end_date DATETIME
+);
+
+
+CREATE TABLE bronze.crm_sales_details (
+sls_ord_num NVARCHAR(50),
+sls_prd_key NVARCHAR(50),
+sls_cust_id INT,
+sls_order_dt INT,
+sls_ship_dt INT,
+sls_due_dt INT,
+sls_sales INT,
+sls_quantity INT,
+sls_price INT
+
+);
+
+CREATE TABLE bronze.erp_loc_a101 (
+cid NVARCHAR(50),
+cntry NVARCHAR(50)
+);
+
+
+CREATE TABLE bronze.erp_cust_aZ12 (
+cid NVARCHAR(50),
+bdate DATE,
+gen NVARCHAR(50),
+);
+
+
+CREATE TABLE bronze.erp_px_cat_g1v2 (
+id NVARCHAR(50),
+cat NVARCHAR(50),
+subcat NVARCHAR(50),
+maintenance NVARCHAR(50)
+
+);
+
+--check if the table exist before creating 
+--SAFE PRACTICE..add the syntax MEANING:If the table exist in the user database,drop and create a new one do this on all newly created tables in your database
+
+
+IF OBJECT_ID ('bronze.crm_cust_info' , 'U') IS NOT NULL 
+DROP TABLE bronze.crm_cust_info ;
+CREATE TABLE bronze.crm_cust_info (
+cst_id INT,
+cst_key NVARCHAR(50),
+cst_firstname NVARCHAR(50),
+cst_lastname NVARCHAR(50),
+cst_material_status NVARCHAR(50),
+cst_gndr NVARCHAR(50),
+cst_create_date DATE
+);
+
+IF OBJECT_ID ('bronze.crm_prd_info' , 'U') IS NOT NULL 
+DROP TABLE bronze.crm_prd_info ;
+CREATE TABLE bronze.crm_prd_info (
+prd_id INT,
+prd_key NVARCHAR(50),
+prd_name NVARCHAR(50),
+prd_cost INT,
+prd_line NVARCHAR(50),
+prd_start_date DATETIME,
+prd_end_date DATETIME
+);
+
+IF OBJECT_ID ('bronze.crm_sales_details' , 'U') IS NOT NULL 
+DROP TABLE bronze.crm_sales_details ;
+CREATE TABLE bronze.crm_sales_details (
+sls_ord_num NVARCHAR(50),
+sls_prd_key NVARCHAR(50),
+sls_cust_id INT,
+sls_order_dt INT,
+sls_ship_dt INT,
+sls_due_dt INT,
+sls_sales INT,
+sls_quantity INT,
+sls_price INT
+
+);
+
+IF OBJECT_ID ('bronze.erp_loc_a101' , 'U') IS NOT NULL 
+DROP TABLE bronze.erp_loc_a101 ;
+CREATE TABLE bronze.erp_loc_a101 (
+cid NVARCHAR(50),
+cntry NVARCHAR(50)
+);
+
+IF OBJECT_ID ('bronze.erp_cust_aZ12' , 'U') IS NOT NULL 
+DROP TABLE bronze.erp_cust_aZ12 ;
+CREATE TABLE bronze.erp_cust_aZ12 (
+cid NVARCHAR(50),
+bdate DATE,
+gen NVARCHAR(50),
+);
+
+IF OBJECT_ID ('bronze.erp_px_cat_g1v2' , 'U') IS NOT NULL 
+DROP TABLE bronze.erp_px_cat_g1v2;
+CREATE TABLE bronze.erp_px_cat_g1v2 (
+id NVARCHAR(50),
+cat NVARCHAR(50),
+subcat NVARCHAR(50),
+maintenance NVARCHAR(50)
+
+);
+
+--LOADING DATA/SCRIPTS
+----------------------
+--BULK INSERT 
+--It is a method of loading masive data very quickly from file like csv or text file directly into the database 
+--after the syntax you you to instruct sql where to start and how to load the data eg we are telling sql that the the first row start from the second line in our CSV
+--NEXT IS TO DEFINE THE FIELD TERMINATOR (SEPARATORS) so which ours is 'comer'
+--OPTIONAL TO LOCK THE TABLE WHEN LOADING IS TABLOCK
+--SYNTAX
+BULK INSERT table_name
+FROM 'file_path on your PC'
+
+BULK INSERT bronze.crm_cust_info
+FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
+WITH (
+FIRSTROW = 2,
+FIELDTERMINATOR = ',',
+TABLOCK
+);
+--Check data quality by counting the rows if it matches 
+SELECT COUNT (*) FROM bronze.crm_cust_info
+
+--to refresh the bulk table we truncate and load 
+--SYNTAX
+TRUNCATE TABLE bronze.crm_cust_info;
+
+BULK INSERT bronze.crm_cust_info
+FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
+WITH (
+FIRSTROW = 2,
+FIELDTERMINATOR = ',',
+TABLOCK
+);
+
+TRUNCATE TABLE bronze.crm_prd_info;
+BULK INSERT bronze.crm_prd_info
+FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\prd_info.csv'
+WITH (
+FIRSTROW = 2,
+FIELDTERMINATOR = ',',
+TABLOCK
+);
+
+
+TRUNCATE TABLE bronze.crm_sales_details;
+BULK INSERT bronze.crm_sales_details
+FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
+WITH (
+FIRSTROW = 2,
+FIELDTERMINATOR = ',',
+TABLOCK
+);
+
+TRUNCATE TABLE bronze.erp_cust_aZ12;
+BULK INSERT bronze.erp_cust_aZ12
+FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\cust_aZ12.csv'
+WITH (
+FIRSTROW = 2,
+FIELDTERMINATOR = ',',
+TABLOCK
+);
+
+
+TRUNCATE TABLE bronze.erp_loc_a101;
+BULK INSERT bronze.erp_loc_a101
+FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\loc_a101.csv'
+WITH (
+FIRSTROW = 2,
+FIELDTERMINATOR = ',',
+TABLOCK
+);
+
+
+TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+BULK INSERT bronze.erp_px_cat_g1v2
+FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\px_cat_g1v2.csv'
+WITH (
+FIRSTROW = 2,
+FIELDTERMINATOR = ',',
+TABLOCK
+);
+
+
+--CREATING A STORE PROCEDURE FOR TABLES
+--=====================================
+--Stored procedures are precompiled database programs that encapsulate frequently used SQL operations along with business logic, improving performance, security, and consistency.
+
+CREATE OR ALTER PROCEDURE bronze.load_bronze AS 
+BEGIN
+    PRINT'=====================================';
+	PRINT'Loading Bronze Layer';
+	PRINT'=====================================';
+	
+	PRINT'-------------------------------------';
+	PRINT'Load CRM Table';
+	PRINT'-------------------------------------';
+	
+	PRINT'>>TRUNCATE TABLE:bronze.crm_cust_info'
+	TRUNCATE TABLE bronze.crm_cust_info;
+
+	PRINT'>>Inserting Data Into: bronze.crm_cust_info'
+	BULK INSERT bronze.crm_cust_info
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+	
+	
+	PRINT'>>TRUNCATE TABLE:bronze.crm_prd_info'
+	TRUNCATE TABLE bronze.crm_prd_info;
+	
+	PRINT'>>Inserting Data Into:bronze.crm_prd_info'
+	BULK INSERT bronze.crm_prd_info
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\prd_info.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+
+
+
+	PRINT'>>TRUNCATE TABLE:bronze.crm_sales_details'
+	TRUNCATE TABLE bronze.crm_sales_details;
+	
+	PRINT'>>Inserting Data Into:bronze.crm_sales_details'
+	BULK INSERT bronze.crm_sales_details
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+	
+	PRINT'-------------------------------------';
+	PRINT'Load ERP Table';
+	PRINT'-------------------------------------';
+
+
+	PRINT'>>TRUNCATE TABLE:bronze.erp_cust_aZ12'
+	TRUNCATE TABLE bronze.erp_cust_aZ12;
+	
+	PRINT'>>Inserting Data Into:bronze.erp_cust_aZ12'
+	BULK INSERT bronze.erp_cust_aZ12
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\cust_aZ12.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+
+
+	PRINT'>>TRUNCATE TABLE:bronze.erp_loc_a101'
+	TRUNCATE TABLE bronze.erp_loc_a101;
+	
+	PRINT'>>Inserting Data Into:bronze.erp_loc_a101'
+	BULK INSERT bronze.erp_loc_a101
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\loc_a101.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+
+
+	PRINT'>>TRUNCATE TABLE:bronze.erp_px_cat_g1v2'
+	TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+	
+	PRINT'>>Inserting Data Into:bronze.erp_px_cat_g1v2'
+	BULK INSERT bronze.erp_px_cat_g1v2
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\px_cat_g1v2.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+END
+
+--Test precedure
+EXEC bronze.load_bronze
+--when writing an ETL script always take care of the messaging codes always print out messages so that after executing the sql you know what the sql did from the mesages printed
+
+CREATE OR ALTER PROCEDURE bronze.load_bronze AS 
+BEGIN
+    PRINT'=====================================';
+	PRINT'Loading Bronze Layer';
+	PRINT'=====================================';
+	
+	PRINT'-------------------------------------';
+	PRINT'Load CRM Table';
+	PRINT'-------------------------------------';
+	
+	PRINT'>>TRUNCATE TABLE:bronze.crm_cust_info'
+	TRUNCATE TABLE bronze.crm_cust_info;
+
+	PRINT'>>Inserting Data Into: bronze.crm_cust_info'
+	BULK INSERT bronze.crm_cust_info
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+	
+	
+	PRINT'>>TRUNCATE TABLE:bronze.crm_prd_info'
+	TRUNCATE TABLE bronze.crm_prd_info;
+	
+	PRINT'>>Inserting Data Into:bronze.crm_prd_info'
+	BULK INSERT bronze.crm_prd_info
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\prd_info.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+
+	PRINT'>>TRUNCATE TABLE:bronze.crm_sales_details'
+	TRUNCATE TABLE bronze.crm_sales_details;
+	
+	PRINT'>>Inserting Data Into:bronze.crm_sales_details'
+	BULK INSERT bronze.crm_sales_details
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+	
+	PRINT'-------------------------------------';
+	PRINT'Load ERP Table';
+	PRINT'-------------------------------------';
+
+	PRINT'>>TRUNCATE TABLE:bronze.erp_cust_aZ12'
+	TRUNCATE TABLE bronze.erp_cust_aZ12;
+	
+	PRINT'>>Inserting Data Into:bronze.erp_cust_aZ12'
+	BULK INSERT bronze.erp_cust_aZ12
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\cust_aZ12.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+
+	PRINT'>>TRUNCATE TABLE:bronze.erp_loc_a101'
+	TRUNCATE TABLE bronze.erp_loc_a101;
+	
+	PRINT'>>Inserting Data Into:bronze.erp_loc_a101'
+	BULK INSERT bronze.erp_loc_a101
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\loc_a101.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+
+	PRINT'>>TRUNCATE TABLE:bronze.erp_px_cat_g1v2'
+	TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+	
+	PRINT'>>Inserting Data Into:bronze.erp_px_cat_g1v2'
+	BULK INSERT bronze.erp_px_cat_g1v2
+	FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\px_cat_g1v2.csv'
+	WITH (
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+	);
+END
+
+
+--Ensure error handling , data intergrity and issue logging for easier DEBUGGING
+--Incase of any error let sql print out message CHECK BELLOW
+--Add the script which displays the exact time sql used to load each table
+--Now to calculate how long it took to load the entire Bronze layer 
+
+
+
+CREATE OR ALTER PROCEDURE bronze.load_bronze AS 
+BEGIN
+DECLARE @start_time DATETIME, @end_time DATETIME, @batch_start_time DATETIME, @batch_end_time DATETIME;
+BEGIN TRY
+        SET @batch_start_time = GETDATE();
+		PRINT'=====================================';
+		PRINT'Loading Bronze Layer';
+		PRINT'=====================================';
+		
+		PRINT'-------------------------------------';
+		PRINT'Load CRM Table';
+		PRINT'-------------------------------------';
+		
+		SET @start_time = GETDATE();
+		PRINT'>>TRUNCATE TABLE:bronze.crm_cust_info'
+		TRUNCATE TABLE bronze.crm_cust_info;
+
+		PRINT'>>Inserting Data Into: bronze.crm_cust_info'
+		BULK INSERT bronze.crm_cust_info
+		FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
+		WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ',',
+		TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT'>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + 'seconds';
+		PRINT'-------------------------------------';
+
+		SET @start_time = GETDATE();
+		PRINT'>>TRUNCATE TABLE:bronze.crm_prd_info'
+		TRUNCATE TABLE bronze.crm_prd_info;
+		
+		PRINT'>>Inserting Data Into:bronze.crm_prd_info'
+		BULK INSERT bronze.crm_prd_info
+		FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\prd_info.csv'
+		WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ',',
+		TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT'>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + 'seconds';
+		PRINT'-------------------------------------';
+
+        SET @start_time = GETDATE();
+		PRINT'>>TRUNCATE TABLE:bronze.crm_sales_details'
+		TRUNCATE TABLE bronze.crm_sales_details;
+		
+		PRINT'>>Inserting Data Into:bronze.crm_sales_details'
+		BULK INSERT bronze.crm_sales_details
+		FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
+		WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ',',
+		TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT'>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + 'seconds';
+		PRINT'-------------------------------------';
+		
+		PRINT'-------------------------------------';
+		PRINT'Load ERP Table';
+		PRINT'-------------------------------------';
+
+        SET @start_time = GETDATE();
+		PRINT'>>TRUNCATE TABLE:bronze.erp_cust_aZ12'
+		TRUNCATE TABLE bronze.erp_cust_aZ12;
+		
+		PRINT'>>Inserting Data Into:bronze.erp_cust_aZ12'
+		BULK INSERT bronze.erp_cust_aZ12
+		FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\cust_aZ12.csv'
+		WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ',',
+		TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT'>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + 'seconds';
+		PRINT'-------------------------------------';
+
+        SET @start_time = GETDATE();
+		PRINT'>>TRUNCATE TABLE:bronze.erp_loc_a101'
+		TRUNCATE TABLE bronze.erp_loc_a101;
+		
+		PRINT'>>Inserting Data Into:bronze.erp_loc_a101'
+		BULK INSERT bronze.erp_loc_a101
+		FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\loc_a101.csv'
+		WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ',',
+		TABLOCK
+		);
+				
+		SET @end_time = GETDATE();
+		PRINT'>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + 'seconds';
+		PRINT'-------------------------------------';
+		
+        SET @start_time = GETDATE();
+		PRINT'>>TRUNCATE TABLE:bronze.erp_px_cat_g1v2'
+		TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+		
+		PRINT'>>Inserting Data Into:bronze.erp_px_cat_g1v2'
+		BULK INSERT bronze.erp_px_cat_g1v2
+		FROM 'C:\Users\nkefu\Downloads\sql-data-warehouse-project (1)\sql-data-warehouse-project\datasets\source_erp\px_cat_g1v2.csv'
+		WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ',',
+		TABLOCK
+		);
+				
+		SET @end_time = GETDATE();
+		PRINT'>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + 'seconds';
+		PRINT'-------------------------------------';
+		SET @batch_end_time = GETDATE();
+		PRINT'========================================'
+		PRINT'Loading Bronze Layer is Completed';
+		PRINT'  -Total Load Duration: ' + CAST(DATEDIFF(SECOND, @batch_start_time, @batch_end_time) AS NVARCHAR) + ' seconds';
+		PRINT'========================================'
+	END TRY
+	BEGIN CATCH
+	PRINT'==========================================='
+	PRINT'ERROR OCCURED DURING LOADING BRONZE LAYER'
+	PRINT'Error Message' + ERROR_MESSAGE();
+	PRINT'Error Message' + CAST (ERROR_NUMBER() AS NVARCHAR);
+	PRINT'Error Message' + CAST (ERROR_STATE() AS NVARCHAR);
+	PRINT'==========================================='
+	END CATCH
+END
+
